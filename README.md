@@ -1,7 +1,7 @@
 # Mini-Projeto-ARCOP- Projeto 8 LXC/LXD.
 Entrega PDF relatório 23 de dezembro 
 
-link word relatório partilhado: https://myisepipp-my.sharepoint.com/:w:/g/personal/1251561_isep_ipp_pt/IQCFyfiTqW7OSrH0LKG2aBdeAUOR_e88vJt1brfafd_p_38?email=1220847%40isep.ipp.pt&e=VU0WPp
+link word relatório partilhado atualizado 15/12/25 por Eduardo: https://myisepipp-my.sharepoint.com/:w:/g/personal/1251561_isep_ipp_pt/IQCFyfiTqW7OSrH0LKG2aBdeAUOR_e88vJt1brfafd_p_38?email=1220847%40isep.ipp.pt&e=VU0WPp
 
 
 
