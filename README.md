@@ -8,6 +8,11 @@ link word relatório partilhado atualizado 15/12/25 por Eduardo: https://myisepi
 
 link chat escolha de projetos e explicação do projeto 8: https://www.perplexity.ai/search/tenho-um-miniprojeto-para-faze-9obCRfkTQ06iN54mwICOIA#0
 
+
+link LKM recolha de dados e informação:https://notebooklm.google.com/notebook/abbf3757-eac3-4ded-a888-e23098fcdbe8
+
+
+
 Projeto 8: LXC/LXD
 Criação de containers LXC para Fedora sem recorrer a templates pré-definidos. O container final deverá demonstrar a execução do
 servidor HTTP. Confrontar com solução baseada em Podman/Docker.
