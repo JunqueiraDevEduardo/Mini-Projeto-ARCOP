@@ -1,0 +1,17 @@
+# Container LXC Fedora HTTP - Criado manualmente SEM template
+# Projeto 8 - ARCOP 2025/2026
+
+lxc.uts.name = lxc-fedora-http
+lxc.arch = x86_64
+
+# Rootfs
+lxc.rootfs.path = dir:/home/eduardomiguelmoreira1251561isep/ISEP/PROJETOS/Mini-Projeto-ARCOP/Projeto8-LXC/containers/lxc-fedora-http/rootfs
+
+# Network
+lxc.net.0.type = veth
+lxc.net.0.link = lxcbr0
+lxc.net.0.flags = up
+lxc.net.0.hwaddr = 00:16:3e:aa:bb:cc
+
+# Common config
+lxc.include = /usr/share/lxc/config/common.conf

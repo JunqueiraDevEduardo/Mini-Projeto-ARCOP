@@ -1,0 +1,166 @@
+Release history for libmodulemd
+
+2.15.2      2025-06-18
+
+Fixes:
+- module_index test now passes if RPM library is built without bzip2 or xz
+  compression support and libmodulemd is configured to support decompression
+  using the RPM library.
+
+
+2.15.1      2025-05-09
+
+Fixes:
+- A new "g_variant_store: assertion 'data != NULL' failed" warning added to
+  GLib 2.84.1 when processing modulemd YAML documents with /data/xmd field with
+  an empty flow map ({}) value was fixed.
+- Building documentation now works with GLib 2.80.1 at the expense of missing
+  cross links from libmodulemd to GLib. If it still fails you, you can disable
+  building the documentation with "-Dwith_docs=false" meson option.
+- A number of warnings printed by recent Meson was reduced.
+
+
+2.15.0      2023-05-10
+
+Enhancements:
+- Add a support for decompressing Zstandard-compressed YAML files.
+  modulemd_detect_compression() function now recognizes files with "zst" file
+  name extension and files with Zstandard magic bytes and returns
+  MODULEMD_COMPRESSION_TYPE_ZSTD_COMPRESSION constant for them.
+  modulemd_module_index_update_from_file() can load Zstandard-compressed YAML
+  files now.
+- Remove a dependency on "file" library (libmagic). libmodulemd now implements
+  its own detection of supported compression formats. This saves roughly 9 MB
+  from a minimal system installation.
+- An XML specification for in-YUM-repository metadata is available in
+  "xml_specs" directory. This new format aspires for replacing modulemd-v2,
+  modulemd-defaults-v1 and modulemd-translations-v1 YAML formats. A motivation
+  is to unify with other XML files in YUM repositories. Please note that this
+  specification is not yet implemented.
+
+Incompatible changes:
+- Meson minimal version increased to 0.55.
+
+Deprecation:
+- Deprecate intents in modulemd-defaults specification. System intents, which
+  parameterize a default stream and default profiles of a module, were never
+  implemented in the package managers (e.g. DNF). Users are discouraged from
+  using this feature. Future libmodulmed versions might deprecate and later
+  remove parts of an API pertaining the intents.
+
+Fixes:
+- Fix a crash when converting a modulemd-packager object with a default
+  profile and without a module name or stream to a module index.
+- Fix parsing empty profiles. Previously a profile with an empty rpms list was
+  misparsed as a list with a single, empty package name.
+- A specification for modulemd-v2 format was corrected to require a "content"
+  license subtree only if the module build contains artifacts.
+- Double-quote strings in scalar YAML values when they look like a number.
+  Most of the fields in the YAML files are required to be interpreted as
+  strings. Unaware third-party parsers could misinterpret number-like strings
+  (e.g. 2.30) as floats (i.e. 2.3), leading to mismatching string
+  representations. This is now prevented by quoting these values (i.e.
+  "2.30").
+- A build script now correctly asserts a requested Python version. Previously
+  Python 3 /usr/bin/python program could be mistaken with Python 2
+  interpreter.
+- meson-0.64.0 warnings about "check" option of run_command() were fixed.
+- Warnings from g_str_equal() macro of glib2 about passing an unsigned
+  char * to strcmp() were fixed.
+
+
+2.14.0      2022-02-04
+
+This release is fully compatible with the previous version 2.13.0 except
+behaviour changes described in Fixes section.
+
+Enhancements:
+- New functions for stripping XMD from an index
+  (modulemd_module_index_clear_xmds()), from a module
+  (modulemd_module_clear_xmds()), and from a version 2 module stream
+  (modulemd_module_stream_v2_clear_xmd()). This enables you to prevent from leaking
+  private build options to output modulemd-v2 documents.
+- Interpret an invalid buildorder 18446744073709551615 as -1 if the library
+  is built with a new build boolean accept_overflowed_buildorder set to true.
+- Document module version, buildorder, and epoch limits in the specifications.
+  Also clarify that an epoch number at RPM artifacts is mandatory.
+- Document that modulemd_module_get_defaults can return NULL
+- Improve a documentation for modulemd_module_set_defaults() and
+  modulemd_module_index_upgrade_defaults() functions.
+- Improve modulemd-validator(1) manual page.
+- Drop a build dependency on help2man tool.
+
+Fixes:
+- Fix a crash when updating an index with an invalid subdocument and a NULL
+  error parameter.
+- Fix clobbering module defaults on a modulemd_module_set_defaults() error.
+- Fix modulemd_module_index_upgrade_defaults() to actually use the requested
+  version.
+- Reject duplicate contexts in modulemd-packager-v3 documents.
+- Report an error if modulemd-validator tool is invoked with both --version
+  option and an unknown option.
+- Fix an undefined behaviour when comparing integers of different signs.
+- Fix DNF examples in a documentation.
+- Actually execute modulemd-obsoletes Python tests.
+- Fix deprecation warnings in tests with glib2-2.69.0.
+- Fix deprecation warnings in Python tests and make the test compatible with
+  Python 3.11.
+
+
+2.13.0      2021-07-09
+
+This release is fully compatible with the previous 2.12.1 version.
+
+Enhancements:
+- Add /data/demodularized/rpms list to modulemd and modulemd-packager formats.
+  The listed binary RPM package names will be handled by a package manager as
+  removed from all previous module versions. This enables moving a package from
+  a module to a non-modular package set.
+- modulemd-validator tool enables you to constrain a document type with a new
+  "--type" option. Without this option, all document types recognized by
+  a modulemd index are accepted. To validate version 3 of modulemd-packager
+  format, use "modulemd-validator --type modulemd-packager-v3 foo.yaml"
+  command.
+- Allow disabling Python 3. You can pass -Dwith_py3=false to a meson setup
+  command to disable building a binding for Python 3. The binding is enabled
+  by default.
+
+Fixes:
+- Reject invalid integers. Purely non-numeric values and negative numbers where
+  an unsigned type is mandated by a specification raise a parser error now.
+- Handle a failed g_setenv() call in modulemd-validator.
+- Prevent from dereferencing a NULL pointer when reporting invalid
+  subdocuments.
+- A build script now refuses to disable Glib introspection
+  (-Dskip_introspection=true) while a Python binding is requested
+  (-Dwith_py3=true).
+- "modulemd-validator --version" command returns 0 exit code now.
+
+
+2.12.1      2021-05-03
+
+This is a bug-fix release fully compatible with the previous 2.12.0
+version. Notable changes:
+
+Enhancements:
+- Improve diagnostic messages for compression tests.
+- Tests performed in a GitHub continues integration are faster.
+- Use GitHub actions to perform CI tests also on ArchLinux, Mageia,
+  Mandriva, and OpenSUSE.
+
+Fixes:
+- Relax context value up to 13 characters including an underscore
+  character in modulemd v2 format. This reenables scratch-builds in MBS.
+- Migrate Packit tests from a deprecated current_version_command to
+  a newer actions/get-current-version.
+
+
+2.12.0      2021-01-15
+
+Enhancements:
+- Enable component 'buildorder' for modulemd-packager v2 and v3 documents.
+
+Fixes:
+- When adding obsoletes ensure index has stream mdversion at least 2.
+- Add missing @staticmethod for python2.
+

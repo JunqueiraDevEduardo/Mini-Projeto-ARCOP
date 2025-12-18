@@ -1,0 +1,470 @@
+
+This file contains the major changes between libsolv versions:
+
+Version 0.7.35
+- selected bug fixes:
+  * fixed rare crash in the handling of allowuninstall in combination
+    with forcebest updates
+- new features:
+  * new pool_satisfieddep_map feature to test if a set of packages
+    satisfies a dependency
+
+Version 0.7.34
+- new features:
+  * support product-obsoletes() provides in the product autopackage
+    generation code
+
+Version 0.7.33
+- selected bug fixes:
+  * improve transaction ordering by allowing more uninst->uninst
+    edges
+  * implement color filtering when adding update targets
+- new features:
+  * support orderwithrequires dependencies in susedata.xml
+
+Version 0.7.32
+- build both static and dynamic libraries on new suse distros
+- require cmake >= 3.5
+- new features:
+  * support the apk package and repository format (both v2 and v3)
+  * new dataiterator_final_{repo,solvable} functions
+
+Version 0.7.31
+- selected bug fixes:
+  * fix replaces_installed_package using the wrong solvable id
+    when checking the noupdate map
+  * make POOL_FLAG_ADDFILEPROVIDESFILTERED behaviour more standard
+- new features:
+  * add rpm_query_idarray query function
+  * support rpm's "orderwithrequires" dependency
+
+Version 0.7.30
+- selected bug fixes:
+  * removed dependency on external find program in the repo2solv
+    tool
+  * bindings: fix return value of repodata.add_solv()
+- new features:
+  * new SOLVER_FLAG_FOCUS_NEW flag
+
+Version 0.7.29
+- selected bug fixes:
+  * improve updating of installed multiversion packages
+  * fix decision introspection going into an endless loop in
+    some cases
+- new features:
+  * added experimental lua bindings
+
+Version 0.7.28
+- selected bug fixes:
+  * disable choice rules for Conda
+  * build for multiple python versions on SUSE
+
+Version 0.7.27
+- selected bug fixes:
+  * add zstd support for the installcheck tool
+  * add putinowndirpool cache to make file list handling in
+    repo_write much faster
+
+Version 0.7.26
+- selected bug fixes:
+  * fix evr roundtrip in testcases
+  * do not use deprecated headerUnload with newer rpm versions
+
+Version 0.7.25
+- selected bug fixes:
+  * support complex deps in SOLVABLE_PREREQ_IGNOREINST
+  * fix minimization not prefering installed packages in some cases
+  * reduce memory usage in repo_updateinfoxml
+  * fix lock-step interfering with architecture selection
+  * fix choice rule handing for package downgrades
+  * fix complex dependencies with an "else" part sometimes leading
+    to unsolved dependencies
+
+Version 0.7.24
+- selected bug fixes:
+  * handle learnt rules in solver_alternativeinfo()
+- new features:
+  * support x86_64_v[234] architecture levels
+  * implement decision sorting for package decisionlists
+
+Version 0.7.23
+- selected bug fixes:
+  * fix "keep installed" jobs not disabling "best update" rules
+  * do not autouninstall suse ptf packages
+  * ensure duplinvolvedmap_all is reset when a solver is reused
+  * special case file dependencies in the testcase writer
+- new features:
+  * support stringification of multiple solvables
+    new function: pool_solvidset2str
+  * new weakdep introspection interface similar to ruleinfos
+    new functions: solver_weakdepinfo, solver_allweakdepinfos
+  * support decision reason queries
+    new functions: solver_get_decisionlist, solver_get_decisionlist_multiple,
+                   solver_get_learnt
+  * support merging of related decissions
+    new functions: solver_decisionlist_solvables, solver_decisionlist_merged,
+                   solver_calc_decisioninfo_bits, solver_merge_decisioninfo_bits
+  * support stringification of ruleinfo, decisioninfo and decision reasons
+    new functions: solver_ruleinfo2str, solver_decisioninfo2str,
+                   solver_decisionreason2str, solver_reason2str
+  * support better info about alternatives
+    new function: solver_alternativeinfo()
+  * new '-P' and '-W' options for testsolv to show proofs and
+    decision reasons
+    
+Version 0.7.22
+- selected bug fixes:
+  * reworked choice rule generation to cover more usecases
+  * support SOLVABLE_PREREQ_IGNOREINST in the ordering code
+- new features:
+  * support parsing of Debian's Multi-Arch indicator
+
+Version 0.7.21
+- selected bug fixes:
+  * fix segfault on conflict resolution when using bindings
+  * fix split provides not working if the update includes a forbidden
+    vendor change
+- new features:
+  * support strict repository priorities
+    new solver flag: SOLVER_FLAG_STRICT_REPO_PRIORITY
+  * support zstd compressed control files in debian packages
+  * add an ifdef allowing to rename Solvable dependency members
+    ("requires" is a keyword in C++20)
+  * support setting/reading userdata in solv files
+    new functions: repowriter_set_userdata, solv_read_userdata
+  * support queying of the custom vendor check function
+    new function: pool_get_custom_vendorcheck
+  * support solv files with an idarray block
+  * allow accessing the toolversion at runtime
+
+Version 0.7.20
+- selected bug fixes:
+  * fix misparsing of '&' in attributes with libxml2
+  * choice rules: treat orphaned packages as newest
+  * fix compatibility with Python 3.10
+- new features:
+  * new SOLVER_EXCLUDEFROMWEAK job to ignore pkgs for weak dependencies
+  * support for environments in comps parser
+
+Version 0.7.19
+- selected bug fixes:
+  * fix rare segfault in resolve_jobrules() that could happen
+    if new rules are learnt
+  * fix a couple of memory leaks in error cases
+  * fix error handling in solv_xfopen_fd()
+
+Version 0.7.18
+- selected bug fixes:
+  * fixed regex code on win32
+  * fixed memory leak in choice rule generation
+- new features:
+  * repo_add_conda: add flag to skip v2 packages
+
+Version 0.7.17
+- selected bug fixes:
+  * repo_write: fix handling of nested flexarray
+  * improve choicerule generation a bit more to cover more cases
+  * harden testcase parser against repos being added too late
+  * support python-3.10
+  * check %_dbpath macro in rpmdb code
+- new features:
+  * handle default/visible/langonly attributes in comps parser
+  * support multiple collections in updateinfo parser
+  * add '-D' option in rpmdb2solv to set the dbpath
+
+Version 0.7.16
+- selected bug fixes:
+  * do not ask the namespace callback for splitprovides when writing
+    a testcase
+  * fix add_complex_recommends() selecting conflicted packages in
+    rare cases leading to crashes
+  * improve choicerule generation so that package updates are
+    prefered in more cases
+  * deal with missing repos in testcase_mangle_repo_names
+
+Version 0.7.15
+- selected bug fixes:
+  * fix deduceq2addedmap clearing bits outside of the map
+  * conda: feature depriorization first
+  * conda: fix startswith implementation
+  * move find_update_seeds() call in cleandeps calculation
+- new features:
+  * set SOLVABLE_BUILDHOST in rpm and rpmmd parsers
+  * new testcase_mangle_repo_names() function
+  * new solv_fmemopen() function
+
+Version 0.7.14
+- added support for ed25519 signatures
+- selected bug fixes:
+  * Support blacklisted packages in solver_findproblemrule()
+  * Support rules with multiple negative literals in choice rule
+    generation
+  * Also detect rpmdb.sqlite in /usr/share/rpm
+
+Version 0.7.13
+- fix solvable swapping messing up uninternalized idarrays
+
+Version 0.7.12
+- conda: support packages.conda repositories
+- conda: de-priorize track features
+- allow win32 to build shared lib
+- selected bug fixes:
+  * fix ruleinfo of complex dependencies returning the wrong origin
+
+Version 0.7.11
+- ENABLE_RPMDB_LIBRPM is now the default
+- selected bug fixes:
+  * fixed solv_zchunk decoding error if large chunks are used
+  * treat retracted pathes as irrelevant
+  * made add_update_target work with multiversion installs
+
+Version 0.7.10
+- new features:
+  * new rpm_stat_database() function
+  * new rpm_hash_database_state() function
+
+Version 0.7.9
+- new features:
+  * support conda constrains dependencies
+
+Version 0.7.8
+- selected bug fixes:
+  * support arch<->noarch package changes when creating patch
+    conflicts from the updateinfo data
+  * also support other rpm database types
+- new features:
+  * support for SOLVER_BLACKLIST jobs that block the installation
+    of matched packages unless they are directly selected by an
+    SOLVER_INSTALL job
+  * libsolv now also parses the patch status in the updateinfo
+    parser
+  * new solvable_matchessolvable() function
+
+Version 0.7.7
+- selected bug fixes:
+  * fix updating of too many packages in focusbest mode
+  * fix handling of disabled installed packages in distupgrade
+- new features
+  * new POOL_FLAG_WHATPROVIDESWITHDISABLED pool flag
+
+Version 0.7.6
+- selected bug fixes:
+  * fix repository priority handling for multiversion packages
+  * better support of inverval deps in pool_match_dep()
+  * support src rpms that have non-empty provides
+- new features
+  * bindings: add get_disabled_list() and set_disabled_list()
+  * bindings: add whatcontainsdep()
+  * bindings: make the selection filters return the self object
+
+Version 0.7.5
+- selected bug fixes:
+  * fix favorq leaking between solver runs if the solver is reused
+  * fix SOLVER_FLAG_FOCUS_BEST updateing packages without reason
+  * be more correct with multiversion packages that obsolete their
+    own name
+  * allow building with swig-4.0.0
+  * lock jobs now take precedence over dup and forcebest jobs
+- new features
+  * MSVC compilation support
+
+Version 0.7.4
+- selected bug fixes:
+  * repo_add_rpmdb: do not copy bad solvables from the old solv file
+  * fix cleandeps updates not updating all packages
+- new features:
+  * bindings: support pool.matchsolvable(), pool.whatmatchessolvable()
+    pool.best_solvables() and selection.matchsolvable()
+  * experimental DISTTYPE_CONDA and REL_CONDA support
+
+Version 0.7.3
+- selected bug fixes:
+  * fixed a couple of null pointer derefs and potential memory
+    leaks
+  * made disfavoring recommended packages work if strong recommends
+    is enabled
+  * no longer disable infarch rules when they don't conflict with
+    the job
+- new features:
+  * do favor evaluation before pruning allowing to (dis)favor
+    specific package versions
+
+Version 0.7.2
+- bug fixes:
+  * do not autouninstall packages because of forcebest updates
+- new features:
+  * support rpm's new '^' version separator
+  * support set/get_considered_list in bindings
+  * new experimental SOLVER_FLAG_ONLY_NAMESPACE_RECOMMENDED flag
+
+Version 0.7.1
+- fix nasty off-by-one error in repo_write
+
+Version 0.7.0
+- soname bump to "1"
+- incompatible API changes:
+  * bindings: Selection.flags is now an attribute
+  * repodata_lookup_num now works like the other lookup_num functions
+- new functions:
+  * selection_make_matchsolvable
+  * selection_make_matchsolvablelist
+  * pool_whatmatchessolvable
+  * repodata_search_arrayelement
+  * repodata_lookup_kv_uninternalized
+  * repodata_search_uninternalized
+  * repodata_translate_dir
+- new repowriter interface to write solv files allowing better
+  control over what gets written
+- support for filtered file lists with a custom filter
+- dropped support of (since a long time unused) REPOKEY_TYPE_U32
+
+Version 0.6.35
+- new configuration options:
+  * ENABLE_ZSTD_COMPRESSION: support zstd compression
+  * ENABLE_ZCHUNK_COMPRESSION: support zchunk compression
+- new features:
+  * new repodata_set_kv() function
+  * new pool_solvable2id() inline function
+  * bindings: new str2dir, dir2str, add_dirstr repodata methods
+- other changes
+  * new repo2solv tool replacing the old shell script
+
+Version 0.6.34
+- new features:
+  * also look at suggests for package ordering
+
+Version 0.6.33
+- new features:
+  * new Selection.clone() method in the bindings
+  * new pool.parserpmrichdep() method in the bindings
+
+Version 0.6.32
+- fixed bug that could make fileconflict detection very slow
+  in some cases
+
+Version 0.6.31
+- new configuration options:
+  * ENABLE_RPMDB_LIBRPM: use librpm to read the package
+    database
+  * ENABLE_RPMPKG_LIBRPM: use librpm to access information
+    from package headers
+- new features:
+  * new pool_set_whatprovides function to manually change
+    the whatprovides data
+  * new selection_subtract function to remove packages of
+    one selection from another selection
+  * new selection flags SELECTION_FILTER,
+    SELECTION_WITH_DISABLED and SELECTION_WITH_BADARCH
+  * new map_invertall function to invert a bitmap
+  * new map_clr_at function to clear some bits
+
+Version 0.6.30
+- new features:
+  * many fixes and extenstions for cleandeps, e.g.
+    cleandeps now works for "update all packages"
+  * support debian packages with xz compressed control.tar
+  * always create dup rules for "distupgrade" jobs
+  * use recommends also for ordering packages
+
+Version 0.6.29
+- new features:
+  * support for REL_WITHOUT and REL_UNLESS dependencies
+  * solver_get_recommendations available in bindings
+
+Version 0.6.28
+- new features:
+  * new pool_best_solvables() function
+
+Version 0.6.27
+- new features:
+  * allow building with libxml2 instead of libexpat
+  * better handing of "forcebest with uninstall"
+  * speed improvements for "name = md5sum" dependencies
+
+Version 0.6.26
+- export solvable_matchesdep function, as we now
+  use it in the bindings
+
+Version 0.6.25
+- new features:
+  * new SOLVER_FLAG_STRONG_RECOMMENDS flag
+  * new SOLVER_FLAG_INSTALL_ALSO_UPDATES flag
+  * new matchesdep() method in bindings
+  * SOLVABLE_NAME selects nevr matching for
+    pool_whatmatchesdep and solvable_matchesdep
+ 
+Version 0.6.24
+- new features:
+  * new SOLVER_FLAG_FOCUS_BEST flag
+
+Version 0.6.22, 0.6.23
+- bug fix releases, no new features
+
+Version 0.6.21
+- new features:
+  * SOLVER_FAVOR and SOLVER_DISFAVOR job types
+- new functions:
+  * selection_make_matchdepid
+  * pool_whatcontainsdep
+  * pool_parserpmrichdep
+
+Version 0.6.20
+- new features:
+  * filter Requires(pre,post) for installed packages
+
+Version 0.6.13:
+- new features:
+  * SOLVER_ALLOWUNINSTALL job type
+  * ordercycle introspection
+- new functions:
+  * transaction_order_get_cycle
+  * transaction_order_get_cycleids
+
+Version 0.6.12:
+- new features:
+  * tcl bindings
+- new functions:
+  * solv_chksum_cmp
+
+Version 0.6.11:
+- new functions:
+  * pool_ids2whatprovides
+
+Version 0.6.9:
+- new features:
+  * much improved package choosing code
+  * new testcase dependency format
+  * alternatives introspection
+- new functions:
+  * pool_deb_get_autoinstalled
+  * solver_alternative2str
+  * solver_alternatives_count
+  * solver_get_alternative
+  * solver_rule2pkgrule
+  * testcase_dep2str
+
+Version 0.6.5:
+- new features:
+  * support yum style obsolete handling
+
+Version 0.6.1:
+- API change:
+  repodata_stringify() now returns the string
+- new features:
+  * add BREAK_ORPHANS and KEEP_ORPHANS solver flags
+
+Version 0.6.0:
+- ABI change: cleaned up and reordered knownid.h
+- added support for sha224/sha384/sha512
+- API change in the bindings:
+  * dropped solvid arg from most Dataiterator
+    constructors
+  * changed Datamatch results from methods to
+    attributes
+  * automatically delete the pool if the owner
+    object is freed (use the disown method to
+    get the old behavior).
+- new functions:
+  * pool_add_userinstalled_jobs
+  * solver_get_userinstalled
+

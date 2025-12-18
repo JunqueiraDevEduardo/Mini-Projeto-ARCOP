@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+# Private interface, subject to change, do not use.
+
+set -ueo pipefail
+context=$1
+[[ "$context" == 'anaconda' ]]
+
+exec update-crypto-policies --set FIPS

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metalink version="3.0" xmlns="http://www.metalinker.org/" type="dynamic" pubdate="Thu, 18 Dec 2025 10:51:42 GMT" generator="mirrormanager" xmlns:mm0="http://fedorahosted.org/mirrormanager">
+ <files>
+  <file name="repomd.xml">
+   <mm0:timestamp>1742403219</mm0:timestamp>
+   <size>3082</size>
+   <verification>
+    <hash type="md5">937f95b7143bb71933e4ab6b5812e853</hash>
+    <hash type="sha1">aec176bc27ee516f0c0a1122e340f1e1956d83b9</hash>
+    <hash type="sha256">7548e76a6e04a3cfce43b7baa7bb8940209d1e6d76bd4bd2575cb013a25f6617</hash>
+    <hash type="sha512">7c8491f22120160160e71ddbe12b8a0fb9729100502c09034f75d432cc9e6fa39eaf0f48e06dcf28b129560fbbafac8b6473a86e515eb021abf81e3e09c371ef</hash>
+   </verification>
+   <resources maxconnections="1">
+    <url protocol="https" type="https" location="US" preference="100">https://codecs.fedoraproject.org/openh264/42/x86_64/repodata/repomd.xml</url>
+   </resources>
+  </file>
+ </files>
+</metalink>
