@@ -31,3 +31,4 @@ nobody:x:65534:
 dbus:x:81:
 systemd-journal:x:190:
 systemd-oom:x:999:
+apache:x:48:

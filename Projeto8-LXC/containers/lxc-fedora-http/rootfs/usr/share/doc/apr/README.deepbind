@@ -1,0 +1,30 @@
+This distribution of APR contains a modification of the behaviour of
+the apr_dso_open() function which allows users enable the
+"RTLD_DEEPBIND" flag when dlopen() is called.
+
+If the "APR_DEEPBIND" environment variable is set at runtime, the
+RTLD_DEEPBIND flag is always added to the flags passed to dlopen().
+
+With normal use of dlopen(), dynamically loaded objects will use
+global symbols in preference to any symbols defined within the object.
+Using RTLD_DEEPBIND reverses this binding order.  See the dlopen(3)
+man page for more information.
+
+This can be useful with Apache httpd, where two different modules are
+loaded like:
+
+1. mod_foo.so uses library "libfoo.so"
+   libfoo.so defines a function "SomeSym"
+2. mod_bar.so uses library "libbar.so"
+   libbar.so defines a different "SomeSym" function
+
+By default, mod_bar or mod_foo would use the "SomeSym" definition from
+the "wrong" library depending on the load order.  If RTLD_DEEPBIND is
+used, the "SomeSym" definition will always be mapped to the definition
+from the corresponding dependent library.  This can avoid symbol
+conflicts.
+
+There are some risks with using RTLD_DEEPBIND, in particular potential
+issues with modules written in C++.  It is not recommended to enable
+$APR_DEEPBIND unless it solves a specific problem and after thorough
+testing of the configuration.

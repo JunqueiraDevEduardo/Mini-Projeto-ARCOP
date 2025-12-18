@@ -1,0 +1,22 @@
+[Thu Dec 18 15:38:01.654582 2025] [suexec:notice] [pid 162:tid 162] AH01232: suEXEC mechanism enabled (wrapper: /usr/bin/suexec)
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using fe80::216:3eff:feaa:bbcc%eth0. Set the 'ServerName' directive globally to suppress this message
+[Thu Dec 18 15:38:01.663034 2025] [lbmethod_heartbeat:notice] [pid 162:tid 162] AH02282: No slotmem from mod_heartmonitor
+[Thu Dec 18 15:38:01.666231 2025] [mpm_event:notice] [pid 162:tid 162] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
+[Thu Dec 18 15:38:01.666268 2025] [core:notice] [pid 162:tid 162] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Dec 18 16:00:09.687073 2025] [suexec:notice] [pid 37:tid 37] AH01232: suEXEC mechanism enabled (wrapper: /usr/bin/suexec)
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.0.3.100. Set the 'ServerName' directive globally to suppress this message
+[Thu Dec 18 16:00:09.696096 2025] [lbmethod_heartbeat:notice] [pid 37:tid 37] AH02282: No slotmem from mod_heartmonitor
+[Thu Dec 18 16:00:09.701555 2025] [mpm_event:notice] [pid 37:tid 37] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
+[Thu Dec 18 16:00:09.701690 2025] [core:notice] [pid 37:tid 37] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Dec 18 16:16:43.450169 2025] [mpm_event:notice] [pid 37:tid 37] AH00492: caught SIGWINCH, shutting down gracefully
+[Thu Dec 18 16:25:41.610651 2025] [suexec:notice] [pid 37:tid 37] AH01232: suEXEC mechanism enabled (wrapper: /usr/bin/suexec)
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.0.3.100. Set the 'ServerName' directive globally to suppress this message
+[Thu Dec 18 16:25:41.620360 2025] [lbmethod_heartbeat:notice] [pid 37:tid 37] AH02282: No slotmem from mod_heartmonitor
+[Thu Dec 18 16:25:41.623063 2025] [mpm_event:notice] [pid 37:tid 37] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
+[Thu Dec 18 16:25:41.623086 2025] [core:notice] [pid 37:tid 37] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Dec 18 16:44:21.975041 2025] [suexec:notice] [pid 37:tid 37] AH01232: suEXEC mechanism enabled (wrapper: /usr/bin/suexec)
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.0.3.100. Set the 'ServerName' directive globally to suppress this message
+[Thu Dec 18 16:44:21.984709 2025] [lbmethod_heartbeat:notice] [pid 37:tid 37] AH02282: No slotmem from mod_heartmonitor
+[Thu Dec 18 16:44:21.987322 2025] [mpm_event:notice] [pid 37:tid 37] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
+[Thu Dec 18 16:44:21.987347 2025] [core:notice] [pid 37:tid 37] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Thu Dec 18 17:45:40.007741 2025] [mpm_event:notice] [pid 162:tid 162] AH00492: caught SIGWINCH, shutting down gracefully

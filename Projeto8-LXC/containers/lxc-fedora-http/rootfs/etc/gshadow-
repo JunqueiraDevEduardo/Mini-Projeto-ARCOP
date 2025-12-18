@@ -30,3 +30,4 @@ sgx:::
 nobody:::
 dbus:!*::
 systemd-journal:!*::
+systemd-oom:!*::

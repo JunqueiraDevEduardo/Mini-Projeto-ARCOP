@@ -1,0 +1,11 @@
+[Unit]
+Description=Configure Network at Boot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/configure-network.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

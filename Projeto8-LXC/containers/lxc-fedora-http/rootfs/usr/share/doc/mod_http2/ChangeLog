@@ -1,0 +1,1721 @@
+v2.0.35
+--------------------------------------------------------------------------------
+  * New directive `H2MaxStreamErrors` to control how much bad behaviour
+    by clients is tolerated before the connection is closed.
+
+v2.0.34
+--------------------------------------------------------------------------------
+  * Added support for "ProxyErrorOverride" directive in mod_proxy_http2.
+  * Fix a bug in calculating the log2 value of integers, used in push
+    diaries and proxy window size calculations. Apache PR69741.
+    [Benjamin P. Kallus]
+
+v2.0.33
+--------------------------------------------------------------------------------
+  * Fixes CVE-2025-53020 (https://www.cve.org/CVERecord?id=CVE-2025-53020)
+    where a client can increase memory consumption for a HTTP/2 connection
+    via repeated request header names,leading to denial of service.
+  * Fixes CVE-2025-49630 (https://www.cve.org/CVERecord?id=CVE-2025-49630)
+    where in certain proxy configurations whith mod_proxy_http2 as the
+    backend, an assertion can be triggered by certain requests, leading
+    to denial of service.
+
+v2.0.32
+--------------------------------------------------------------------------------
+  * The connection window size was set wrong, preventing `H2WindowSize`
+    to work. Fixed #300.
+
+v2.0.31
+--------------------------------------------------------------------------------
+  * mod_proxy_http2: revert r1912193 for detecting broken backend connections
+    as this interferes with backend selection who a node is unresponsive.
+    PR69624.
+  * Fix issue with handling 304 responses from mod_cache. PR69580.
+
+v2.0.30
+--------------------------------------------------------------------------------
+  * Fixed bug in handling over long response headers. When the 64 KB limit
+    of nghttp2 was exceeded, the request was not reset and the client was
+    left hanging, waiting for it. Now the stream is reset.
+  * Added new directive `H2MaxHeaderBlockLen` to set the limit on response
+    header sizes.
+  * Fixed handling of Timeout vs. KeepAliveTimeout when first request on a
+    connection was reset.
+
+v2.0.29
+--------------------------------------------------------------------------------
+  * fixed a compiler warning about an unused static var when AP_MPMQ_CAN_WAITIO
+    is not defined.
+
+v2.0.28
+--------------------------------------------------------------------------------
+ * When HTTP/2 flow controls blocks further writes, return processing to an
+   async mpm to free a worker thread. The connection needs window updates from
+   the client in such a case and can leave monitoring the socket to the mpm.
+   So far, only effective on Apache httpd 2.5.0 (trunk).
+   [ylavic, icing]
+ * Backport fix of CVE-2024-36387 from Apache 2.4.60.
+
+v2.0.27
+--------------------------------------------------------------------------------
+ * Added `cmake` support provided by @jfclere. Many thanks.
+ * Improved handling of excess request headers to lead to an early
+   stream reset.
+
+v2.0.26
+--------------------------------------------------------------------------------
+ * Fixed `Date` header on requests upgraded from HTTP/1.1 (h2c). Fixes #272.
+ * Fixed small memory leak in h2 header bucket free. Thanks to
+   Michael Kaufmann for finding this and providing the fix.
+
+v2.0.25
+--------------------------------------------------------------------------------
+ * Fixed a bug that prevented immediate memory release of reset streams
+   on rare occasions. Memory was reclaimed instead at connection close.
+   This could be exploited, unless nghttp2 v1.57.0 is used, in a variation
+   of the Rapid Reset attack. Apache httpd issued CVE-2023-45802 for this.
+ * Synchronized with Apache httpd svn trunk
+
+v2.0.24
+--------------------------------------------------------------------------------
+ * fixed a compile time issue for Windows builds.
+
+v2.0.23
+--------------------------------------------------------------------------------
+  * Improved timeout handling for streams that are sending response data.
+  * mod_proxy_http2: fix `X-Forward-Host` header to carry the correct value.
+    refs https://bz.apache.org/bugzilla/show_bug.cgi?id=66752.
+
+v2.0.22
+--------------------------------------------------------------------------------
+ * Added support for bootstrapping WebSockets via HTTP/2, as described in
+   RFC 8441.
+ * A new directive 'H2WebSockets on|off' has been added. The feature is
+   disabled by default for compatibility reasons.
+ * In Apache httpd development trunk (e.g. version 2.5.x) it is possible to use
+   this with the proxy module to reverse proxy to a backend WebSockets server.
+   This requires some new internal plumbing code in the server for getting I/O
+   events on the HTTP/2 stream serving the connection.
+   This "plumbing" is planned to be ported back into Apache 2.4.x.
+ * For implementors of Apache modules using WebSockets, mod_h2 offers an
+   optional function that provides an alternative to "older" Apache versions.
+   See http2_get_pollfd_from_conn, declared in mod_http2.h.
+
+v2.0.21
+--------------------------------------------------------------------------------
+ * The reporting of `Total Accesses` in the server-status page was fixed. It
+   counted HTTP/2 requests twice. Test case added for this. Fixes PR 66801.
+ * New directive `H2ProxyRequests on|off` to enable handling of HTTP/2 requests
+   in a forward proxy configuration. In addition to `ProxyRequests` for
+   HTTP/1.1. Set both directives to `on` to allow both HTTP versions.
+ * Fixed an inconsistency in main connection io state after the connection
+   write encountered an error. Related to PR 66649.
+
+v2.0.20
+--------------------------------------------------------------------------------
+ * Fixed a compiler warning about an uninitialized var used in logging.
+
+v2.0.19
+--------------------------------------------------------------------------------
+ * Fixed a bug that could lead to a crash in main connection output handling.
+   This occured only when the last request on a HTTP/2 connection had been
+   processed and the session decided to shut down. This could lead to an attempt
+   to send a final GOAWAY while the previous write was still in progress.
+   See PR 66646.
+ * added `--enable-debug` to configure which adds rutime checks and asserts,
+   useful for development. Not recommended for production use.
+ * fixed error handling when flushing output on main connection.
+
+v2.0.18
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: fixed using the wrong "bucket_alloc" from the backend
+   connection when sending data on the frontend one. This caused crashes
+   or infinite loops in rare situations.
+ * Fixed a bug that did cleanup of consumed and pending buckets in
+   the wrong order when a bucket_beam was destroyed.
+
+v2.0.17
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: fixed a bug in retry/response handling that could lead
+   to wrong status codes or HTTP messages send at the end of response bodies
+   exceeding the announced content-length.
+
+v2.0.16
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: fix retry handling to not leak temporary errors.
+   On detecting that that an existing connection was shutdown by the other
+   side, a 503 response leaked even though the request was retried on a
+   fresh connection.
+ * Fixed a bug that applied request filters twice on redirects. This led to
+   double chunked-encoding internally on POST requests without content-length.
+   Fix by Yann Ylavic.
+   See <https://bz.apache.org/bugzilla/show_bug.cgi?id=66597>.
+ * mod_proxy_http2: added checks for space/ctrls in nocanon path/urls
+   before forwarding. By Yann Ylavic.
+
+v2.0.15
+--------------------------------------------------------------------------------
+ * Fixed #253 where requests were not logged and accounted in a timely
+   fashion when the connection return to "keepalive" handling, e.g. when
+   the request served was the last outstanding one.
+   This led to late appearance in access logs with wrong duration times
+   reported.
+ * New directive 'H2EarlyHint name value' to add headers to a response,
+   picked up already when a "103 Early Hints" response is sent. 'name' and
+   'value' must comply to the HTTP field restrictions.
+   This directive can be repeated several times and header fields of the
+   same names add. Sending a 'Link' header with 'preload' relation will
+   also cause a HTTP/2 PUSH if enabled and supported by the client.
+ * accurately report the bytes sent for a request in the '%O' Log format.
+   This addresses #203, a long outstanding issue where mod_h2 has reported
+   numbers over-eagerly from internal buffering and not what has actually
+   been placed on the connection.
+   The numbers are now the same with and without H2CopyFiles enabled.
+
+v2.0.14
+--------------------------------------------------------------------------------
+ * fixed a crash during connection termination. See Apache PR 66539.
+ * fixed a memory leak in calc_sha256_hash().
+
+v2.0.13
+--------------------------------------------------------------------------------
+ * New directive 'H2MaxDataFrameLen n' to limit the maximum amount of response
+   body bytes put into a single HTTP/2 DATA frame. Setting this to 0 places
+   no limit (but the max size allowed by the protocol is observed).
+   The module, by default, tries to use the maximum size possible, which is
+   somewhat around 16KB.
+   This sets the maximum. When less response data is availble, smaller frames
+   will be sent.
+
+v2.0.12
+--------------------------------------------------------------------------------
+ * client resets of HTTP/2 streams led to unwanted 500 errors
+   reported in access logs and error documents. The processing of the
+   reset was correct, only unneccesary reporting was caused.
+ * Upgrade requests from HTTP/1.1 to HTTP/2 via the "Upgrade" header were
+   always ignored for a request with a body. The check for this was incomplete
+   and missed bodies announced via "Transfer-Encoding". Fixed. Refs #243
+
+v2.0.11
+--------------------------------------------------------------------------------
+ * WARNING: the directive "H2HeaderStrictness" from v2.0.4 has been
+   removed again. Leading/trailing whitespace in header values is now
+   being stripped both for requests and responses. The checks for this
+   in nghttp2 v1.50.0+ are now always disabled.
+   This means that clients that send leading/trailing ws continue to
+   work, but that whitespace makes no difference in processing a request.
+   This is the same behaviour as in http/1.1 where the Apache parser does
+   the stripping as well (since forever).
+
+v2.0.10
+--------------------------------------------------------------------------------
+ * Extensive testing in production done by Alessandro Bianchi (@alexskynet)
+   on the v2.0.x versions for stability. Many thanks!
+ * refactored stream response handling to reflect the different phases
+   (response/data/trailers) more clearly and help resolving cpu busy loops.
+ * Adding more negative tests for handling of errored responses to cover
+   edge cases.
+ * mod_http2: fixed handling of response where neiter an EOS nor an ERROR was
+   received as a cause to reset the stream.
+ * mod_proxy_http2: generating error buckets for fault response bodies, to
+   signal failure to fron when response header were already sent.
+
+v2.0.9
+--------------------------------------------------------------------------------
+ * Fixed a bug where errors during reponse body handling did not lead to
+   a proper RST_STREAM. Instead processing went into an infinite loop.
+   Extended test cases to catch this condition.
+
+v2.0.8
+--------------------------------------------------------------------------------
+ * Delaying input setup of a stream just before processing starts. This allows
+   any EOS indicator arriving from the client before that to take effect.
+   Without knowing that a stream has no input, internal processing has to
+   simulate chunked encoding. This is not wrong, but somewhat more expensive
+   and mod_security has been reported to be allergic to seeing 'chunked'
+   on some requests. See <https://bz.apache.org/bugzilla/show_bug.cgi?id=66282>.
+ * mod_proxy_http2: fixed #235 by no longer forwarding 'Host:' header when
+   request ':authority' is known. Improved test case that did not catch that
+   the previous 'fix' was incorrect.
+
+v2.0.7
+--------------------------------------------------------------------------------
+ * fixed idle connection handling for non-async MPMs, like worker.
+   With mpm_worker, idle conection could go into a busy loop waiting for
+   new data to arrive.
+
+v2.0.6
+--------------------------------------------------------------------------------
+ * fixed handling of connection `Timeout` setting to not apply when streams
+   are still being processed. Adjusted test case expectation.
+ * referring to #234, adding an explicit close after a request has been
+   processed to prevent missing EOS indicators from leaving a stream open
+   indefinitely.
+ * fixed a race condition in end-of-input handling for requests (introduced
+   in the v2.0.x line).
+
+v2.0.5
+--------------------------------------------------------------------------------
+ * Synchronized changes from Apache trunk development. Improvements in pollset
+   handling and simplification of response data passing to main connection.
+ * Improvements in shutdown scenarios that wake up a potentially sleeping
+   pollset that might block a clean child exit.
+
+v2.0.4
+--------------------------------------------------------------------------------
+ * new directive `H2HeaderStrictness (highest|rfc7540|rfc9113)` to configure
+   the strictness of HTTP header checks. rfc9113 forbids leading and trailing
+   whitespace in headers and is supported when building against
+   nghttp2 v1.50.0 or newer. The default is the backward compatible
+   behavior, e.g. rfc7540.
+ * Integrated improvements from Apache httpd 2.4.x branch:
+   - remove unused and insecure code. Fixes PR66037.
+   - preserve the port number given in a HTTP/1.1
+     request that was Upgraded to HTTP/2. Fixes PR65881.
+
+v2.0.3
+--------------------------------------------------------------------------------
+ * A bug that prevented trailers (e.g. HEADER frame at the end) to be
+   generated in certain cases was fixed. See #233 where it prevented
+   gRPC responses to be properly generated.
+ * :scheme pseudo-header values, not matching the
+   connection scheme, are forwarded via absolute uris to the
+   http protocol processing to preserve semantics of the request.
+   Checks on combinations of pseudo-headers values/absence
+   have been added as described in RFC 7540. Fixes #230.
+ * Fix possible beam bucket double free from session destroy. [ylavic]
+
+v2.0.2
+--------------------------------------------------------------------------------
+ * When reaching server limits, such as MaxRequestsPerChild, the HTTP/2 connection
+   send a GOAWAY frame much too early on new connections, leading to invalid
+   protocol state and a client failing the request. See PR65731 at
+   <https://bz.apache.org/bugzilla/show_bug.cgi?id=65731>.
+   The module now initializes the HTTP/2 protocol correctly and allows the
+   client to submit one request before the shutdown via a GOAWAY frame
+   is being announced.
+
+v2.0.1
+--------------------------------------------------------------------------------
+ * Improved information displayed in 'server-status' for H2 connections when
+   Extended Status is enabled. Now one can see the last request that IO
+   operations happened on and transferred IO stats are updated as well.
+ * Fixed a bug that let to an infinite loop in v2.0.0 when the client closed
+   the connection.
+ * Fixing NULL dereference if server variable SSL_PROTOCOL is unset.
+ * Setting DefaultRuntimeDir and PidFile in test configuration to override
+   any platform defaults.
+ * Disabling pollset use when compiling with APR version < 1.6.0
+
+v2.0.0
+--------------------------------------------------------------------------------
+ * Fixed input handling for requests without body that nevertheless try
+   to read one (e.g. mod_cgid handling) to deliver at least an EOS bucket
+   before signalling an EOF.
+ * A regression in v1.15.24 was fixed that could lead to httpd child
+   processes not being terminated on a graceful reload or when reaching
+   MaxConnectionsPerChild. When unprocessed h2 requests were queued at
+   the time, these could stall. See #212.
+ * Fixed an issue since 1.15.24 that "Server" headers in proxied requests
+   were overwritten instead of preserved. [PR by @daum3ns]
+
+v2.0.0-rc4
+--------------------------------------------------------------------------------
+ * fixing an uninitialized status code when pollsets are not used for streams.
+
+v2.0.0-rc3
+--------------------------------------------------------------------------------
+ * Added an alternate implementation when polling of file descriptors is
+   not supported by the OS. This is automatically detected via the APR
+   header files, but can be enforces by adding '--disable-poll-streams'
+   to the './configure' when building the module.
+   This should allow the module to work on Windows again.
+
+v2.0.0-rc2
+--------------------------------------------------------------------------------
+ * Switching from a thread-safe apr pollset (not supported under Windows) to
+   a wakeable pollset implementation.
+ * Adding a clear error in the logs if the pollset could not be created.
+
+v2.0.0-rc1
+--------------------------------------------------------------------------------
+ * HTTP/2 connections now use pollsets to monitor the status of the
+   ongoing streams and their main connection.
+ * Fixed a bug where, without 'H2SerializeHeaders' some errors, such
+   as a input timeout, did not produce the correct response.
+ * Added directove 'H2StreamTimeout' to configure a separate value for HTTP/2
+   streams, overriding server's 'Timeout' configuration. [rpluem]
+ * Removed work-arounds for older versions of libnghttp2 and checking
+   during configure that at least version 1.15.0 is present. Which, due
+   to its age, should not make a difference to anyone.
+ * The HTTP/2 connection state handler, based on an experiment and draft
+   at the IETF http working group (abandoned for some time), has been removed.
+ * H2SerializeHeaders no longer has an effect. A warning is logged when it is
+   set to "on". The switch enabled the internal writing of requests to be parsed
+   by the internal HTTP/1.1 protocol handler and was introduced to avoid
+   potential incompatibilities during the introduction of HTTP/2.
+ * Removed the abort/redo of tasks when mood swings lower the active
+   limit. This probably hurts the server more than it helps. Some
+   setup, like proxied connections, can be slow to respond to the
+   abort of a connection.
+
+v1.15.24
+--------------------------------------------------------------------------------
+ * With Apache httpd 2.4.49 or newer, h2 idle workers are terminated on a graceful
+   restart/shutdown immediately. This happens independant of any h2 connections being
+   processed or not.
+ * Switch to using OpenSSL EVP_* API to avoid deprecation warnings with
+   OpenSSL 3.0. [@notroj]
+
+v1.15.23
+--------------------------------------------------------------------------------
+ * H2MinWorker is reduced automatically to 1 during graceful shutdown
+   of a child process (e.g. server reload). This lets all ongoing requests
+   continue, but shuts down unused threads early.
+   The H2MaxWorkerIdleSeconds is also reduced to 1, so that any workers
+   for ongoing tasks will close down fast.
+
+v1.15.22
+--------------------------------------------------------------------------------
+ * Added a timeout to h2 worker cleanup to exit latest after 5 seconds of
+   waiting on idle workers to terminate. This happens after all connections
+   have been processed. a WARNING is logged in case workers lagged behind.
+   This is a stopgap to an underlying issue introduced by the recent
+   dynamic worker changes.
+ * H2 sessions normally log a warning when the connection is torn down
+   without them being able to send a last GOAWAY frame. This logging
+   happens at DEBUG level during the stopping of a child process.
+ * `configure` now checks for `apache2ctl` if `apachectl` was not found.
+ * `configure` now longer errors when no apachectl was found but warns
+   that the test suite will not work.
+ * The test suite now clears Apache's error log on start and checks after
+   the run if unexpected errors or warnings were logged.
+
+v1.15.21
+--------------------------------------------------------------------------------
+ * Making h2 connection "mood swings" to ignore clients resetting
+   requests which have at least produced the response headers and
+   one DATA chunk. This targets long-running requests like
+   websockets and server-side-events (SSE), where a RST_STREAM
+   ius the cleint's only option of terminating such requests.
+   With this change, clients are no longer punished for it.
+   See also: <https://bz.apache.org/bugzilla/show_bug.cgi?id=65402>
+   (background: "mood swings" influence how many resources are
+   available to a connection, e.g. how many h2 workers may be
+   working for it at a given point in time.)
+ * Making H2Min/MaxWorkers behave as intended again. The module will initially
+   create H2MinWorkers threads and add up to H2MaxWorkers when needed. These
+   additional workers time out when idle after H2MaxWorkerIdleSeconds and
+   disappear again.
+ * When the shutdown of a child is detected (e.g. graceful shutdown), the
+   module will terminate all idle workers above H2MinWorkers right away.
+   This detection currently only happens when a HTTP/2 connection is active.
+   See also #212.
+ * Restoring compatibility with apache httpd 2.4.48 again.
+ * Adding a docker image for testing on archlinux. Use:
+   > docker-compose build archlinux
+   > docker-compose run archlinux
+ * Adding a docker image for testing on Debian 'sid'. Use:
+   > docker-compose build debian-sid
+   > docker-compose run debian-sid
+
+v1.15.20
+--------------------------------------------------------------------------------
+ * requires apache httpd 2.4.48
+ * Align handling of 304 response headers with behaviour of http/1.1. [ylavic]
+ * now shares code with http/1.1 protocol implementation
+   for checking validity of methods and other request parameter. [ylavic]
+ * Using the new ap_ssl_* functions available since Apache 2.4.48
+ * Some compatibility fixes with the ever evolving OpenSSL API
+
+v1.15.19
+--------------------------------------------------------------------------------
+ * Fixed the Makefile to include the test module in the distribution, so that
+   tests can be build an run from the tar file. Fixes #210.
+
+v1.15.18
+--------------------------------------------------------------------------------
+ * Fixed a race condition that could lead to streams being aborted
+   (RST to the client), although a response had been produced.
+
+v1.15.17
+--------------------------------------------------------------------------------
+ * Integrated changes from Apache trunk.
+ * Log requests and sent the configured error response in case of early detected
+   errors like too many or too long headers. [Ruediger Pluem]
+ * added test for buffering across a mod_http2+mod_proxy_http2 connection
+ * added TRACE2 logging to show buffering flag when writing task output
+ * new option 'H2OutputBuffering on/off' which controls the buffering of stream output.
+   The default is on, which is the behaviour of older mod-h2 versions. When off, all
+   bytes are made available immediately to the main connection for sending them
+   out to the client. This fixes interop issues with certain flavours of gRPC, see
+   als #207.
+ * Eliminated some Python deprecation warnings in test code.
+ 
+v1.15.16
+--------------------------------------------------------------------------------
+ * Fixed reporting of transferred bytes for mod_logio for modifiers %O (and %S) to
+   report the number of transferred header and body lengths. This is still only
+   an approximation of the bytes on the connection. The data is subject to header
+   compression and h2 framing afterwards. Grain of salt. Fixes #203.
+ 
+v1.15.14
+--------------------------------------------------------------------------------
+ * Removing support for abandoned draft of http-wg regarding cache-digests.
+
+v1.15.13
+--------------------------------------------------------------------------------
+ * Fixes #200: "LimitRequestFields 0" now disables the limit, as documented.
+
+v1.15.12
+--------------------------------------------------------------------------------
+ * Fixes #201: do not count repeated headers with same name against the field
+   count limit. The are merged internally, as if sent in a single HTTP/1 line.
+ * Refrain from detecting (intermediate) responses, when the connection has
+   already been aborted or non-flush meta buckets are encountered.
+ * Changed terminology to master/secondary connections in the source.
+ * Test against the installed version of the module. This allows test cases
+   to work with other versions.
+
+v1.15.11
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: the "ping" proxy parameter 
+   (see <https://httpd.apache.org/docs/2.4/mod/mod_proxy.html>) is now used
+   when checking the liveliness of a new or reused h2 connection to the backend.
+   With short durations, this makes load-balancing more responsive. The module
+   will hold back requests until ping conditions are met, using features of the
+   HTTP/2 protocol alone. [Ruediger Pluem, Stefan Eissing]
+
+v1.15.10
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: respect ProxyTimeout settings on backend connections
+   while waiting on incoming data. [Ruediger Pluem, Stefan Eissing]
+
+v1.15.9
+--------------------------------------------------------------------------------
+ * Since v1.15.4 mod_reqtimeout was enabled for h2 connections. This lead to closing of
+   h2 connections when a handshake timeout was configured, irregardless if the handshake
+   did happen or not. Added a positive test next to the negative one to ensure that 
+   mod_reqtimeout is removed after a successful handshake. Fixes #196 
+
+v1.15.8
+--------------------------------------------------------------------------------
+ * Fixed an unfortunate regression introduced in v1.15.7 that prevented
+   H2_STREAM_ID to be set. Fixes <https://bz.apache.org/bugzilla/show_bug.cgi?id=64330>
+   and Windows crashes reported in <https://www.apachelounge.com/viewtopic.php?p=39012#39012>. 
+ * Synch with code spell/APLOGNO changes from Apache svn.
+
+v1.15.7
+--------------------------------------------------------------------------------
+ * Fixes issue #195 regarding h2 slave connection ids that resulted in duplicate
+   request ids being generated under loads.
+
+v1.15.6
+--------------------------------------------------------------------------------
+ * Fix by Joe Orton for a gcc 10 warnings on s390x.
+
+v1.15.5
+--------------------------------------------------------------------------------
+ * Fixed rare cases where a h2 worker could deadlock the main connection. All the good
+   bits in this thanks to Yann Ylavic.
+ 
+v1.15.4
+--------------------------------------------------------------------------------
+ * Fixed interaction with mod_reqtimeout. mod-h2 was knocking it out completely, however
+   it allow configuration of the TLS handshake timeout and that is very useful indeed.
+   Also, fixed a stupid mistake of mine that made `H2Direct` always `on`, irregardless 
+   of configuration. Found and reported by <Armin.Abfalterer@united-security-providers.ch> and
+   <Marcial.Rion@united-security-providers.ch>. Thanks!
+ * Switched test suite and test cgis to python3. A regression in cgi.Fieldstorage() makes
+   tests skip chunked uploads at the moment. Sad.
+ * Merged PR by @mkaufmann that avoids multiple field lengths violations to be logged
+   on the same request.
+ 
+v1.15.3
+--------------------------------------------------------------------------------
+ * fixes Timeout vs. KeepAliveTimeout behaviour, see PR 63534 (for trunk now,
+   mpm event backport to 2.4.x up for vote). 
+ * Fixes stream cleanup when connection throttling is in place. 
+ * Counts stream resets by client on streams initiated by client as cause 
+   for connection throttling.
+ * Header length checks are now logged similar to HTTP/1.1 protocol handler (thanks @mkaufmann)
+ * Header length is checked also on the merged value from several header instances
+   and results in a 431 response.
+ 
+v1.15.2
+--------------------------------------------------------------------------------
+ * fixing mod_proxy_http2 to support trailers in both directions. See PR 63502.
+
+v1.15.1
+--------------------------------------------------------------------------------
+ * further copying of passed data to disentangle worker and main connection.
+
+v1.15.0
+--------------------------------------------------------------------------------
+ - reverted as no good.
+
+v1.14.3
+--------------------------------------------------------------------------------
+ * Integrated latest changes from trunk. In particular mod_proxy_http2 connection
+   reuse and retry changes by @rpluem.
+ 
+v1.14.2
+--------------------------------------------------------------------------------
+ * Integrated a forgotten request init fix from Apache subversion
+ * When a TLS renegotiation is denied, configured error documents could prevent
+   the proper HTTP/2 stream reset to happen. Fix by Michael Kaufmann (@mkauf).
+ * Added a test case for #172
+
+v1.14.1
+--------------------------------------------------------------------------------
+ * Tweaks to new H2Padding, now simply is of the form:
+    ```H2Padding numbits```
+   and applies a *random* number of padding bytes to each payload frame. The
+   range is from [0, 2^N[. The default is 0, so no padding.
+ 
+v1.14.0
+--------------------------------------------------------------------------------
+ * new configuration directive:
+    ```H2Padding [ 'prefer' | 'enforce' ] numbits```
+    to control padding of HTTP/2 payload frames. 'numbits' is a number from 0-8,
+    where 0 disables padding and 1-8 is the power of 2 that frame lengths are
+    rounded to. The default is 4 bits, e.g. frames are padded to be a multiple
+    of 16 (2^4).
+    While 'enforce' always applies this to all payload frames, the default 'prefer'
+    option caps frame length at H2TLSWarmUpSize when in effect.
+  
+v1.13.1
+--------------------------------------------------------------------------------
+ * mod_http2: cleanup of the now dead h2_req_engine support, no functional change.
+
+v1.13.0
+--------------------------------------------------------------------------------
+ * mod_proxy_http2: simplifying implementation and reducing memory use by only
+   running a single request at the time on a h2 backend connection. The previous
+   implementation was just not good enough regarding flow control on the overall
+   server and too complex compared to the performance benefits achieved. The goal
+   with this change is to establish a solid base from which to optimize things
+   again.
+ * Fixes slave connection input filter to use proper return code on speculative read
+   encountering an EOF.
+ * Starting test_600 for mod_proxy_http2 use on server itself
+
+v1.12.5
+--------------------------------------------------------------------------------
+ * Analyzing PR63170 more, mod_proxy_http2 needs to differentiate between its hosting
+   stream gone and its master connection gone. The later is terminal, the former is not.
+ * mod_proxy_http2: ping the other side of an idle connection only when not already
+   waiting on a PING response.
+
+v1.12.4
+--------------------------------------------------------------------------------
+ * Fixed an issue where a proxy_http2 handler entered an infinit loop when encountering
+   certain errors on the backend connection. 
+   See <https://bz.apache.org/bugzilla/show_bug.cgi?id=63170>.
+
+v1.12.3
+--------------------------------------------------------------------------------
+ * fixed bug in nghttp output parsing that filters now Frames sent/received inbetween
+   response body DATA. 
+ * added test cases for nghttp output parsing which is screen scraping, so controlled
+   failure make debugging issues easier
+ * fixed an issue with curl detecting when configure --with-curl=path was used.
+ * added multi-resource retrieval tests via nghttp -a
+ * added Test for the h2 status handler
+ * More POST and form upload tests with nghttp client
+ * added POST tests in a http: proxied setup
+
+v1.12.2
+--------------------------------------------------------------------------------
+ * Fixed keepalives counter on slave connections.
+
+v1.12.1
+--------------------------------------------------------------------------------
+ * Fixed Bug introduce in v1.12.0 where mod_proxy_http2 no longer set the server name
+   on new backend connections.
+ * Fixed issue where mod_proxy_http2 would trigger an invalid internal state when retrying requests.
+ * applied patch for #167 provided by Michael Kaufmann (@mkauf) about errors on
+   HEAD requests (h2 streams not closed cleanly), for example those served by mod_cgid.
+
+v1.12.0
+--------------------------------------------------------------------------------
+ * H2Upgrade can be configured per directory/location. Test case added.
+ * H2Push can be disabled per directory/location. Test case added.
+ * Configuration rework to open up several directives for use in locations and directories
+   and .htaccess files.
+ * Merging changes from httpd/trunk + httpd/branches/2.4.x to have a unified source again.
+
+v1.11.4
+--------------------------------------------------------------------------------
+ * Changed cleanup strategy for slave connections.
+ * Added test case for <https://bz.apache.org/bugzilla/show_bug.cgi?id=62654>
+ * Adding an mpm check so that mod_http2 also compiles against Apache httpd trunk.
+
+v1.11.3
+--------------------------------------------------------------------------------
+ * Adding defensive code for stream EOS handling, in case the request handler somehow
+   missed to signal it the normal way. Should address #167 and #170. 
+ 
+v1.11.2
+--------------------------------------------------------------------------------
+ * Fixed configure to no longer require ```libcurl-devel```, but only the ```curl```
+   command with h2 support for testing.
+
+v1.11.1
+--------------------------------------------------------------------------------
+ * added test/Makefile.in to the release tar ball, so that peopl just need
+   automake to build (reported in #169 by @uhliarik, fix proposed by @notroj)
+ * added  -avoid-version to the linker flags (thanks to Oden Erikson, @odeneriksson)
+ * added tests for 100 interim responses
+ * added tests for trailers
+ * added tests for conditional request header
+ * added tests for invalid characters in response header
+ * added Upgrade: response header tests
+ * added vars require configuration tests
+ * added ssl renegotiation tests
+
+v1.11.0
+--------------------------------------------------------------------------------
+ * connection IO event handling reworked. Instead of reacting on incoming bytes, the
+   state machine now acts on incoming frames that are affecting it. This reduces
+   state transitions.
+ * pytest suite now covers some basic tests on h2 selection, GET and POST
+ * started to add pytest suite from existing bash tests
+
+v1.10.21
+--------------------------------------------------------------------------------
+ * Code cleanups from Apache subversion
+ * New optional function to query the number of h2 workers from Apache branch
+
+v1.10.20
+--------------------------------------------------------------------------------
+ * Restore keepalive handling of v1.10.16. Idle connections are kept open
+   for the duration.
+
+v1.10.19
+--------------------------------------------------------------------------------
+ * adding regular memory cleanup when transferring large response bodies. This
+   reduces memory footprint and avoids memory exhaustion when transferring large files
+   on 32-bit architectures.
+
+v1.10.18
+--------------------------------------------------------------------------------
+ * fixes a race condition where aborting streams triggers an unnecessary timeout.
+
+v1.10.17
+--------------------------------------------------------------------------------
+ * accurate reporting of h2 data input/output per request via mod_logio. Fixes
+   an issue where output sizes where counted n-times on reused slave connections. See #158.
+ * normalized connection prefix logging when trace2 is enabled for direct h2 connection
+   detection.
+
+v1.10.16
+--------------------------------------------------------------------------------
+ * Removed no longer used code in stream cleanup, disabled beam events
+   during pool shutdown, discouraged content-encoding filter from applying
+   themselves to http2_status responses.
+
+v1.10.15
+--------------------------------------------------------------------------------
+ * discourage gzip/brotli content encoding on http2-status responses as
+   they are inserted into the reponse when filters are already done.
+
+v1.10.14
+--------------------------------------------------------------------------------
+  * fixed unfair scheduling when number of active connections
+     exceeded the scheduling fifo capacity.
+
+v1.10.13
+--------------------------------------------------------------------------------
+  * avoid unnecessary data retrieval for a trace log. Allow certain
+    information retrievals on null bucket beams where it makes sense.
+  * Fixed configure to check first for libs and then add compiler flags
+
+v1.10.12
+--------------------------------------------------------------------------------
+  * Reverting 1.10.11 change since showed no effect on issue #120
+  * Fixes a race condition on request body handling.
+
+v1.10.11
+--------------------------------------------------------------------------------
+  * DoS flow control protection is less agressive as long as active tasks stay
+    below worker capacity. Intended to fix problems with media streaming.
+
+v1.10.10
+--------------------------------------------------------------------------------
+  * adding signalling of data available before waiting on beam buffer to drain. Missing this causes suspended streams to stall and time out.
+
+v1.10.9
+--------------------------------------------------------------------------------
+  * cleanup of bucket beam change signaling to track down issue #143
+
+v1.10.8
+--------------------------------------------------------------------------------
+  * a stream could stall and not send any more output to the client which in the end aborts the connection due to a timeout.
+
+v1.10.7
+--------------------------------------------------------------------------------
+  * disable and give warning when mpm_prefork is encountered. The server will
+    continue to work, but HTTP/2 will no longer be negotiated.
+  * improved implementation of ready queue.
+
+v1.10.6
+--------------------------------------------------------------------------------
+  * Fix for possible CPU busy loop introduced in v1.10.3 where a stream may keep
+    the session in continuous check for state changes that never happen.
+
+v1.10.5
+--------------------------------------------------------------------------------
+  * fail requests without ERROR log in case we need to read interim
+    responses and see only garbage. This can happen if proxied servers send
+    data where none should be, e.g. a body for a HEAD request.
+
+v1.10.4
+--------------------------------------------------------------------------------
+  * mod_proxy_http2: adding support for Reverse Proxy Request headers.
+
+v1.10.3
+--------------------------------------------------------------------------------
+  * fixed possible deadlock that could occur when connections were 
+     terminated early with ongoing streams. Fixed possible hanger with timeout
+     on race when connection considers itself idle. 
+
+v1.10.2
+--------------------------------------------------------------------------------
+  * MaxKeepAliveRequests now limits the number of times a 
+    slave connection gets reused.
+  * Client streams that lack the EOF flag get now forcefully
+    closed with a RST_STREAM (NO_ERROR) when the request has been answered.
+  * Only when 'HttpProtocolOptions Unsafe' is configured, will
+    control characters in response headers or trailers be forwarded to the
+    client. Otherwise, in the default configuration, a request will eiher 
+    fail with status 500 or the stream will be reset by a RST_STREAM frame. 
+     
+v1.10.1
+--------------------------------------------------------------------------------
+  * Fixed bug in re-attempting proxy requests after connection error. 
+    Reliability of reconnect handling improved.
+  * Fixed two rare deadlocks with new non-nested mutex use.
+  * No longer mapping Link: header urls in proxy requests when preserve host
+    is set.
+
+v1.10.0
+--------------------------------------------------------------------------------
+  * better performance, eliminated need for nested locks and
+    thread privates. Moving request setups from the main connection to the
+    worker threads. Increase number of spare connections kept.
+  * input buffering and dynamic flow windows for increased 
+    throughput. Requires nghttp2 >= v1.5.0 features. Announced at startup
+    in mod_http2 INFO log as feature 'DWINS'.
+  * h2 workers with improved scalability for better scheduling
+    performance. There are H2MaxWorkers threads created at start and the
+    number is kept constant for now.
+  * obsoleted option H2SessionExtraFiles, will be ignored and
+    just log a warning.
+  * fixed PR60869 by making h2 workers exit explicitly waking up
+    all threads to exit in a defined way.
+     
+v1.9.3
+--------------------------------------------------------------------------------
+  * moving session cleanup to pre_close hook to avoid races with
+    modules already shut down and slave connections still operating.
+  * stream timeouts now change to vhost values once the request
+    is parsed and processing starts. Initial values are taken from base
+    server or SNI host as before. [Stefan Eissing]
+  * fixed retry behaviour for http2 proxy connections when frontend 
+    connection uses http/1.1.     
+  * separate mutex instances for each bucket beam, resulting in 
+    less lock contention. input beams only created when necessary.
+
+v1.9.2
+--------------------------------------------------------------------------------
+  * mod_http2: adding allocator mutex to session pool due to reports of rare
+    crashes.
+    
+v1.9.1
+--------------------------------------------------------------------------------
+  * mod_proxy_http2: support for ProxyPreserveHost directive
+
+v1.9.0
+--------------------------------------------------------------------------------
+  * not counting file buckets again stream max buffer limits. 
+    Effectively transferring static files in one step from slave to master 
+    connection.    
+  * mod_http2: comforting ap_check_pipeline() on slave connections
+    to facilitate reuse (see https://github.com/icing/mod_h2/issues/128).
+    [reported by Armin Abfalterer]
+  * mod_http2: http/2 streams now with state handling/transitions as defined
+    in RFC7540. Stream cleanup/connection shutdown reworked to become easier
+    to understand/maintain/debug. Added many asserts on state and cleanup 
+    transitions.
+ 
+v1.8.11
+--------------------------------------------------------------------------------
+  * regression fix on bugzilla PR 59348, on graceful restart, ongoing 
+    streams are finished normally before the final GOAWAY is sent.
+  * do not attempt to generated a response on an already aborted slave connection
+  * fix potential double cleanup of bucket beam memory
+
+v1.8.10
+--------------------------------------------------------------------------------
+  * fixes bugzilla PR60599, sending proper response for conditional requests
+    answered by mod_cache. (orignal patch by Jeff Wheelhouse)
+
+v1.8.9
+--------------------------------------------------------------------------------
+  * rework of stream resource cleanup to avoid a crash in a close
+    of a lingering connection. Prohibit special file bucket beaming for
+    shared buckets. Files sent in stream output now use the stream pool
+    as read buffer, reducing memory footprint of connections.
+    (much help from Yann Ylavic)
+
+v1.8.8
+--------------------------------------------------------------------------------
+  * streaming of request output now reacts timely to data
+    from other streams becoming available. Same for new incoming requests.
+ 
+v1.8.7
+--------------------------------------------------------------------------------
+  * fix for possible page fault when stream is resumed during session shutdown. 
+    (Patch by sidney-j-r-m, github)
+  * fix for h2 session ignoring new responses while already
+    open streams continue to have data available.
+     
+v1.8.6
+--------------------------------------------------------------------------------
+  * adding support for MergeTrailers directive. 
+  * limiting DATA frame sizes by TLS record sizes in use on the     
+    connection. Flushing outgoing frames earlier.
+
+v1.8.5
+--------------------------------------------------------------------------------
+  * Removed debug log statements left over in 1.8.4 release.
+  
+v1.8.4
+--------------------------------------------------------------------------------
+  * Cleanup beamer registry on server reload, Fixes Apache bugzilla PR60510.
+    Patch by Pavel Mateja <pavel@verotel.cz>
+  * Fixes #126 e.g. beam bucket lifetime handling when data is sent 
+    over temporary pools.
+
+v1.8.3
+--------------------------------------------------------------------------------
+  * CVE-2016-8740: Mitigate DoS memory exhaustion via endless
+    CONTINUATION frames. Reported by Naveen Tiwari <naveen.tiwari@asu.edu> and 
+    CDF/SEFCOM at Arizona State University
+  * Removing some warning when streams are cleaned up that were never scheduled
+
+
+v1.8.2
+--------------------------------------------------------------------------------
+  * new directive 'H2EarlyHints' to enable sending of HTTP status 103 interim
+    responses. Off by default since some browser still choke on them.
+  * mod_proxy_http2 will, when used on top of a HTTP/1.x connection, only 
+    forward 100 responses from the backend if the client expects them. All
+    other responses in the 100 range are filtered.
+
+v1.8.0
+--------------------------------------------------------------------------------
+  * mod_http2: new directive 'H2PushResource' to enable early pushes before 
+    processing of the main request starts. Resources are announced to the 
+    client in Link headers on a 103 early hint response. 
+    All responses with status code <400 are inspected for Link header and
+    trigger pushes accordingly. 304 still does prevent pushes.
+    'H2PushResource' can mark resources as 'critical' which gives them higher
+    priority than the main resource. This leads to preferred scheduling for
+    processing and, when content is available, will send it first. 'critical'
+    is also recognized on Link headers.
+  * mod_proxy_http2: uris in Link headers are now mapped back to a suitable
+    local url when available. Relative uris with an absolute path are mapped
+    as well. This makes reverse proxy mapping available for resources
+    announced in this header. 
+    With 103 interim responses being forwarded to the main client connection,
+    this effectively allows early pushing of resources by a reverse proxied
+    backend server.
+  * mod_proxy_http2: adding support for 103 status code, as proposed by
+    Kazuho Oku.
+
+v1.7.9
+--------------------------------------------------------------------------------
+  * fixed a crash in stream shutdown introduced in 1.7.8
+
+v1.7.8
+--------------------------------------------------------------------------------
+  * unannounced and multiple interim responses (status code < 200)
+    are parsed and forwarded to client until a final response arrives.
+  * mod_proxy_http2: improved robustness when main connection is closed early
+    by resetting all ongoing streams against the backend.
+  * mod_http2: allocators from slave connections are released earlier, resulting
+    in less overall memory use on busy, long lived connections.
+
+v1.7.6
+--------------------------------------------------------------------------------
+  * fixed crash in beam memory handling introduced in 1.7.x changes
+
+v1.7.5
+--------------------------------------------------------------------------------
+  * properly implemented 100-continue handling for proxy setups, be it
+    mod_proxy_http or mod_proxy_http2
+  * reusing backend HTTP/2 connections more than a second old will hold back
+    request bodies until a PING response is received. Headers are still sent
+    right away since those are repeatable on a new connection.
+  
+  
+v1.7.3
+--------------------------------------------------------------------------------
+  * reverts some int -> apr_uint32_t changes made in 1.7.0 to address possible
+    crashes.
+    
+v1.7.2
+--------------------------------------------------------------------------------
+  * fixes compilation error on 32 bit systems when generating slave connection id.
+
+v1.7.1
+--------------------------------------------------------------------------------
+  * fix for build issues on Windows platforms
+
+v1.7.0
+--------------------------------------------------------------------------------
+  * rewrite of how responses and trailers are transferred between master and 
+    slave connections.
+  * Reduction of internal states for tasks and streams, reducing complexity
+    for increased stability. 
+  * Heuristic id generation for slave connections to better keep promise of 
+    connection ids unique at given point in time. This fixes problems with
+    mod_cgid in high load situtations. 
+  * Fix for handling of incoming trailers when no request body is sent.
+
+v1.6.2
+--------------------------------------------------------------------------------
+  * fixes a race that led to output blocking (stream not finishing)
+
+v1.6.1
+--------------------------------------------------------------------------------
+  * if configured with nghttp2 1.14.0 and onward, invalid request
+    headers will immediately reset the stream with a PROTOCOL error. Feature
+    logged by module on startup as 'INVHD' in info message.
+  * fixed handling of stream buffers during shutdown.
+     
+v1.6.0
+--------------------------------------------------------------------------------
+ * handling graceful shutdown gracefully, e.g. processing existing streams to the end.
+ * h2 status resource follows latest draft, see
+   http://www.ietf.org/id/draft-benfield-http2-debug-state-01.txt
+   Configure it as
+   <Location "/.well-known/h2/state">
+        SetHandler http2-status
+    </Location>
+ * support for 'Expect: 100-continue' handling
+
+v1.5.13
+--------------------------------------------------------------------------------
+ * new H2CopyFiles directive that changes treatment of file handles in 
+   responses. Necessary in order to fix broken lifetime handling in modules 
+   such as mod_wsgi. Use 'H2CopyFiles off' where ever you need it.
+ * removing timeouts on master connection while requests are being processed. 
+   Requests may timeout, but the master only times out when no more requests 
+   are active.
+
+v1.5.12
+--------------------------------------------------------------------------------
+ * fixed connection flushing when handling SETTINGS and no stream is open.
+   (thanks @summerwind)
+ * fix for request abort when connections drops, introduced in 1.5.8
+ * more rigid error handling in DATA frame assembly, leading
+   to deterministic connection errors if assembly fails.
+
+v1.5.10
+--------------------------------------------------------------------------------
+ * fixed bug in error handling when passing DATA frames.
+
+v1.5.9
+--------------------------------------------------------------------------------
+ * more strict error handling and logging in DATA frame assembly.
+
+v1.5.8
+--------------------------------------------------------------------------------
+ * mod_http2: improved cleanup of connection/streams/tasks to always
+   have deterministic order regardless of event initiating it. Addresses
+   reported crashes due to memory read after free issues. 
+  
+v1.5.7
+--------------------------------------------------------------------------------
+ * fixed read after free on certain conditions when clients abort connections
+ * fixed connection shutdown when stream tasks block on reads
+
+v1.5.6
+--------------------------------------------------------------------------------
+ * fixed possible null pointer reference in new bucket beams during read on an 
+   aborted beam
+ * improved event handling on master connection (idle/submit/wait) to increase 
+   performance
+ 
+v1.5.5
+-------------------------------------------------------------------------------- 
+ * Fix async write issue that sometimes led to selection of wrong timeout
+   vs. keepalive timeout selection for idle sessions.
+ * Checking LimitRequestLine, LimitRequestFields and 
+   LimitRequestFieldSize configurated values for incoming streams. Returning
+   HTTP status 431 for too long/many headers fields and 414 for a too long
+   pseudo header.
+ * Tracking conn_rec->current_thread on slave connections, so
+   that mod_lua finds the correct one. Fixes PR 59542.
+
+v1.5.3
+-------------------------------------------------------------------------------- 
+ * slave connections have conn_rec->aborted flag set when a stream
+   has been reset by the client.
+ * Small fixes in bucket beams when forwarding file buckets. Output handling
+   on master connection uses less FLUSH and passes automatically when more
+   than half of H2StreamMaxMemSize bytes have accumulated.
+   Workaround for http: when forwarding partial file buckets to keep the
+   output filter from closing these too early.
+ * elimination of fixed master connectin buffer for TLS connections. New 
+   scratch bucket handling optimized for TLS write sizes. 
+   File bucket data read directly into scratch buffers, avoiding one
+   copy. Non-TLS connections continue to pass buckets unchanged to the core
+   filters to allow sendfile() usage.
+ * h2_request.c is no longer shared between these modules. This simplifies 
+   building on platforms such as Windows, as module reference used in 
+   logging is now clear.
+     
+v1.5.2
+-------------------------------------------------------------------------------- 
+ * fixed connection shutdown deadlock on linux when client closed early
+ * beam shutdown does now wait on endpoint to finish using buckets in flight,
+   hopefully addressing crash issues completely 
+ * Since 1.5.1 the internal HTTP/2 protocol is reported as "HTTP/2.0" for
+   better compatibility and since CGI's SERVER_PROTOCOL seems to require this
+   format
+    
+v1.5.1
+-------------------------------------------------------------------------------- 
+ * fixed segmentation fault when connections where aborted by client in new
+   bucket beam code
+ * eliminated one more memory pool per stream
+ 
+v1.5.0
+-------------------------------------------------------------------------------- 
+ * mod_proxy_http2 for backend HTTP/2 connections, currently cleartext only
+ * new "bucket beam" technology to transport buckets across threads without 
+   buffer copy. 
+ * delaying response start until flush or enough body data has been accumulated.
+ * all fixed up to and including 1.4.7
+     
+v1.4.7
+-------------------------------------------------------------------------------- 
+ * disabling file mmap handling as this leads to segmentation faults when files
+   are truncates while being streamed out. 
+ * Some additional trace1 logging when connections give unexpected errors, e.g.
+   clients close connection without final GOAWAY frame. 
+ 
+v1.4.6 (as released in Apache httpd 2.4.20)
+-------------------------------------------------------------------------------- 
+ * incrementing keepalives on each request started so that logging %k gives 
+   increasing numbers per master http2 connection. New documented variables 
+   in env, usable in custom log formats: H2_PUSH, H2_PUSHED, H2_PUSHED_ON, 
+   H2_STREAM_ID and H2_STREAM_TAG.
+ * more efficient passing of response bodies with less contention
+     and file bucket forwarding.
+ * fix for missing score board updates on request count, fix for memory leak 
+   on slave connection reuse.
+ * disabling PUSH when client sends GOAWAY. Slave connections are reused for 
+   several requests, improved performance and better memory use. 
+ * fixes problem with wrong lifetime of file buckets on main connection.
+ * fixes incorrect denial of requests without :authority header.
+ * give control to async mpm for keepalive timeouts only when no streams are 
+   open and even if only after 1 sec delay. Under load, event mpm discards 
+   connections otherwise too quickly.
+ * fixed possible read after free when streams were cancelled early by the 
+   client.
+ * fixed possible deadlock during connection shutdown. Thanks to @FrankStolle 
+   for reporting and getting the necessary data.
+ * fixed apr_uint64_t formatting in a log statement to user proper APR def, 
+   thanks to @Sp1l.
+ * number of worker threads allowed to a connection is adjusting 
+   dynamically. Starting with 4, the number is doubled when streams can be 
+   served without block on http/2 connection flow. The number is halfed, when
+   the server has to wait on client flow control grants. 
+   This can happen with a maximum frequency of 5 times per second. 
+   When a connection occupies too many workers, repeatable requests 
+   (GET/HEAD/OPTIONS) are cancelled and placed back in the queue. Should that 
+   not suffice and a stream is busy longer than the server timeout, the 
+   connection will be aborted with error code ENHANCE_YOUR_CALM.
+   This does *not* limit the number of streams a client may open, rather the
+   number of server threads a connection might use.
+ * allowing link header to specify multiple "rel" values, space-separated 
+   inside a quoted string. Prohibiting push when Link parameter "nopush" is 
+   present.
+ * reworked connection state handling. Idle connections accept a GOAWAY from 
+   the client without further reply. Otherwise the module makes a best effort 
+   to send one last GOAWAY to the client.
+ * the values from standard directives Timeout and KeepAliveTimeout properly 
+   are applied to http/2 connections.
+ * idle connections are returned to async mpms. new hook "pre_close_connection" 
+   used to send GOAWAY frame when not already done. Setting event mpm server 
+   config "by hand" for the main connection to the correct negotiated server.
+ * keep-alive blocking reads are done with 1 second timeouts to check for MPM 
+   stopping. Will announce early GOAWAY and finish processing open streams, 
+   then close.
+ * bytes read/written on slave connections are reported via the optional 
+   mod_logio functions. Fixes PR 58871.
+ * connections how keep a "push diary" where hashes of already pushed resources 
+   are kept. See directive H2PushDiarySize for managing this. Push diaries can 
+   be initialized by clients via the "Cache-Digest" request header. 
+   This carries a base64url encoded. compressed Golomb set as described
+   in https://datatracker.ietf.org/doc/draft-kazuho-h2-cache-digest/
+   Introduced a status handler for HTTP/2 connections, giving various counters
+   and statistics about the current connection, plus its cache digest value
+   in a JSON record. Not a replacement for more HTTP/2 in the server status. 
+   Configured as
+   <Location "/http2-status">
+       SetHandler http2-status
+   </Location>
+ * Fixed flushing of last GOAWAY frame. Previously, that frame did not always 
+   reach the client, causing some to fail the next request.
+   Fixed calculation of last stream id accepted as described in rfc7540. 
+   Reading in KEEPALIVE state now correctly shown in scoreboard. 
+   Fixed possible race in connection shutdown after review by Ylavic. 
+   Fixed segfault on connection shutdown, callback ran into a semi dismantled session. 
+ * Added support for experimental accept-push-policy draft
+   (https://tools.ietf.org/html/draft-ruellan-http-accept-push-policy-00). Clients
+   may now influence server pushes by sending accept-push-policy headers.
+ * new r->subprocess_env variables HTTP2 and H2PUSH, set to "on"
+   when available for request.
+ * mod_status/scoreboard: showing connection protocol in new column, new 
+   ap_update_child_status methods for updating server/description. mod_ssl
+   sets vhost negotiated by servername directly.
+
+v1.2.8
+-------------------------------------------------------------------------------- 
+ * Requests without ':authority' header, using 'Host' instead, are no longer
+   denied.
+   
+v1.2.7
+-------------------------------------------------------------------------------- 
+ * Adding logio fix from apache trunk so that resource sizes are correcly 
+   reported in access logs.
+
+v1.2.6
+-------------------------------------------------------------------------------- 
+ * Adding 'accept-encoding' to headers used in PUSHed resources - as sent by
+   the initiating request.
+
+v1.2.5
+-------------------------------------------------------------------------------- 
+ * fixes a deadlock that caused connections to get stuck in output, locking
+   up the connection and a server thread forever. Thanks to @FrankStolle for
+   reporting and getting the necessary data.
+ 
+v1.2.4
+-------------------------------------------------------------------------------- 
+ * removed all H2*Timeout directives. HTTP/2 uses not the same Timeout and
+   KeepAliveTimeout as HTTP/1.1.
+ * enforcing the Timeout value on read and write operations from the selected
+   virtual host (TLS+SNI). httpd was wrongly using the defaults set in the
+   base server config.
+ * add DEBUG logging to see if writing properly returns to catch a connection
+   hanger reported in #79
+ 
+v1.2.3
+-------------------------------------------------------------------------------- 
+ * connection timeout handling when requests do not report back
+ * setting correct server config for event mpm on main connection, so that
+   timeouts, keepalives use the correct values
+ * fixes event hack to match changes in structures
+
+v1.2.2
+-------------------------------------------------------------------------------- 
+ * removed unused code
+ 
+v1.2.1
+-------------------------------------------------------------------------------- 
+ * fixed compilation error because of stupid own log2n function
+ * fixed cache digest calculation to spit out same values as Kazuho Oku's
+   reference implementation (https://github.com/kazuho/h2-cache-digest).
+ 
+v1.2.0
+-------------------------------------------------------------------------------- 
+ * Each connection now has a push diary where already pushed resources are
+   recorded (as 64-bit subsets sha256 URL hashes). The maximum size of a diary
+   can be configured with the new directive 'H2PushDiarySize'. The default is 256.
+ * The module recognizes the request header 'Cache-Digest', carrying a base64url
+   encoded set of hash values using Golomb set encoding as described in
+      https://datatracker.ietf.org/doc/draft-kazuho-h2-cache-digest/
+   This is highly experimental and will most likely change in format and
+   interpretation as the draft evolves. For now, this value is used to replace
+   the current push diary. This allows clients to inform the server about
+   which resources they already have cached.
+ * module configuration now looks to the crypto library (because it wants SHA256
+   from it). If it is not found, a replacement hash is used, however this is
+   not interoperable with cache digests from clients, e.g. hits will be missed.
+ * the module has a new handler named "http2-status" which exposes certain
+   properties and statistics of the *current* HTTP/2 connection. It can be 
+   configured just like:
+       <Location "/http2-status">
+         SetHandler http2-status
+       </Location>
+   The usual precautions about exposing some internals of your server to the
+   outside world apply. Just as for "server-status"."
+ * Due to more test cases and new functions, more bugs have been exposed,
+   examined and exterminated.
+
+v1.1.0
+-------------------------------------------------------------------------------- 
+ * GOAWAY will be sent when a HTTP/2 connection is shutdown, whenever the
+   connection still allows it. Calculation of the last stream id has been
+   corrected to include streams started, not only streams finished processing.
+ * several issues fixed with new fuzzing tests that simulate random closes 
+   and delays/timeouts
+ * H2SessionExtraFiles are now shared between all sessions in the same process.
+   It now works like this:
+   H2MaxWorkers * H2SessionFiles is assumed to be the total number of file
+   handles that can be safely used for HTTP/2 transfers without other parts
+   of the server running out of handles. This number is shared between all
+   HTTP/2 connections in the same server process.
+   The default is set to 2. With H2MaxWorkers on most platforms/mpms
+   defaulting to 25 that gives a maximum of 50 handles that can be invoved in
+   transfers. 
+   I think I have to write a blog post one day of how this works and affects
+   performance. tl;dr the more handles http2 may use, the faster static files
+   can be served.
+ * KeepAlive is not correctly visible on the server status page for HTTP/2
+   connections. (Would like more info there, need to extend the scoreboard
+   for it.)
+ * KeepAlive connections are *not* set aside in async MPMs such as event. This
+   is a very desirable feature, but I could not get it to work reliably with
+   the existing MPM interface. Will work on that for the next Apache release.
+   (The main problem is that event will silently close such connections and
+    http2 has no chance to send a last GOAWAY frame. That makes clients fail
+    requests which they have just started.)
+
+v1.0.18
+-------------------------------------------------------------------------------- 
+ * fixed race condition in connnection shutdown that could cause indefinite 
+   hang, fixed cleanup of http2 worker threads, thanks to Yann Ylavic
+ 
+v1.0.17
+-------------------------------------------------------------------------------- 
+ * H2Timeout/H2KeepAliveTimeout now defaults to what ever is set for HTTP/1
+   connections via Timeout/KeepAliveTimeout
+ * fixes in calculating remaining timeout values
+
+v1.0.16
+-------------------------------------------------------------------------------- 
+ * simplified connection shutdown and worker join for robustness
+ * improved performance for small requests due to less locking
+ * http2 connections work in event with normal server KeepAliveTimeout setting
+ 
+v1.0.15
+-------------------------------------------------------------------------------- 
+ * fixed busy loops on random connection errors
+ * fixed connection state for event MPM that shutdown child with 'G' status
+ * changed default for H2KeepAliveTimeout. For async MPMs (event), will leave
+   keepalive handling to the MPM. For sync (worker, prefork), will default to
+   whatever is set for H2Timeout.
+ 
+v1.0.14
+-------------------------------------------------------------------------------- 
+ * fixed segfault on connection shutdown
+ * added support for accept-push-policy headers, see
+   https://tools.ietf.org/html/draft-ruellan-http-accept-push-policy-00
+ 
+v1.0.13
+-------------------------------------------------------------------------------- 
+ * reworked connection state handling. Improved scoreboard update (server-status).
+   Default on H2KeepAliveTimeout same as H2Timeout, 5 seconds. After that, 
+   connections are closed.
+   On asynchronous MPMs (event), keep-alive connections no longer block threads,
+   but exact timeout handling is then up to the MPM. In these MPMs, having a
+   longer H2KeepAliveTimeout may be suitable.
+ * new CGI environment variables HTTP2 and H2PUSH. With former "on", the 
+   connection uses HTTP/2. With latter "on", the request may trigger Server Push
+   via Link headers, as both server and clients support it.
+
+v1.0.12
+-------------------------------------------------------------------------------- 
+ * alpha release on top of Apache httpd 2.4.18
+ * removed sandbox from build, needs installed 2.4.18 + apxs
+ * new directives:
+   - H2Timeout           timeout of a http/2 connection (seconds), default 5
+   - H2KeepAliveTimeout  timeout of an idle http/2 connection (seconds), default 300
+   - H2StreamTimeout     timeout on individual streams (seconds), default 120
+   you can set them to `0` in which case no timeout may apply. You may try that
+   for the stream timeouts if you have problems. This is the very experimental
+   part right now...
+ * improved handling of connection closes to make a better effort on freeing
+   worker threads still involved in streams.
+ * worker numbers are constant MaxThreadsPerChild by default
+ * fixed bug on handling large input without content length
+   
+v1.0.3
+-------------------------------------------------------------------------------- 
+ * copy from https://svn.apache.org/repos/asf/httpd/httpd/trunk
+ * includes proposed backport patch for Apache httpd 2.4.17
+   * improved https:// throughput
+   * vastly improved http:// throughput
+   * several stability and logging improvements
+   * connection reuse: virtual hosts that have exactly the same TLS setup
+     (certificates, protocol, ciphers and all) allow using a single HTTP/2
+     connection.
+   * h2c: first HTTP/1.1 request on a connection will announce additionally
+     available and more preferred protocols in the ```Upgrade``` response
+     header.
+   * H2Direct is by default on for cleartext connections where h2c is an
+     allowed protocol. Or, the other way around, it is always disabled unless
+     h2/h2c is configured.
+   * TLS handshake is triggered earlier, allowing all connection hooks which
+     register behind mod_ssl to see negotiated values.
+   * new experimental directives ```H2TLSWarmUpSize``` and ```H2TLSCoolDownSecs```
+     that specify how TLS record sizes should used during the lifetime of a
+     connection.
+     * H2TLSWarmUpSize: amount of bytes to send in small (~1300 bytes) chunks,
+       so that packets fit inside a single MTU. After this many bytes have
+       been sent, data is written with max size of 16 KB when possible.
+     * H2TLSCoolDownSecs: number of idle seconds to pass before a warmed
+       up TLS connection falls back to small chunks again.
+     Set both to 0 to always write max chunks. Defaults are 1 MB and 1 second.
+   * HTTP/2 priorities are now respected when scheduling streams for handling.
+     This effects which queued task is handled first whenever a worker becomes
+     available.
+   * New directive ```H2ModernTLSOnly on|off``` that checks connections for
+     TLS protocol version and negotiated ciphers, so that HTTP/2 connections
+     only happen on ```modern``` TLS and none of the ciphers in the black
+     list from RFC 7540 are used.
+   * 'HTTP/2.0' is written in log files when requests are served via mod_http2.
+     
+ * updated test cases from Apache tests
+ * configure now builds the sandbox by default, too many user problems
+   otherwise
+
+
+v0.9.9 - 1.0.2
+-------------------------------------------------------------------------------- 
+never happened here, but at http://httpd.apache.org
+
+v0.9.8
+-------------------------------------------------------------------------------- 
+ * server protocol of requests served via mod_h2 is now `HTTP/2`
+ * directive `H2SerializeHeaders` had no effect any longer, fixed.
+ * requests served in `H2SerializeHeaders on` hosts, report `HTTP/1.1` as
+   protocol. This is the mode to enabled when having compatiblity issues.
+
+v0.9.7
+-------------------------------------------------------------------------------- 
+ * update of core-protocols.patch to v4
+ * "Protocols" default changed. servers/vhosts need to explicitly enable h2/h2c 
+   now. For example with `Protocols h2 http/1.1`
+ * adding test cases for "Protocols" ordering
+ * configuration option -enable-werror now sets compiler flags to go for Apache
+   httpd standard code restrictions.
+
+v0.9.6
+-------------------------------------------------------------------------------- 
+ * for closed h2 connections proper state is set. Fixes resource/worker handling
+   issues in mpm_event
+ * upgrade the core-protocols patch to the latest relevant apache changes
+ * if not explicitly configured, H2SessionExtraFiles gets a default usable in
+   proecsses with 256 max file handles and depending on mpm used.
+ * upgraded sandbox to nghttp2 1.3.0
+
+v0.9.5
+-------------------------------------------------------------------------------- 
+ * fix for resource management when running with mpm_event
+
+v0.9.4
+-------------------------------------------------------------------------------- 
+ * mod_h2 is a copy of the module in Apache httpd trunk
+ * requires a patched httpd for new Protocols feature. Patch applied in sandbox,
+   available for own use in sandbox/httpd/patches/core_protocols_release.patch.
+ * See README.me about changes, especially the chapter about Migration
+ * Several H2* directives have disappeared, also see Migration in README.md
+ * This version should be close to the release candidate. Report any issues
+   here at github or on the apache httpd dev mailing list
+
+v0.8.3
+-------------------------------------------------------------------------------- 
+ * Fixed typo in module setup during installation that broke enabling the module
+   via a2enmod.
+
+v0.8.2
+-------------------------------------------------------------------------------- 
+ * In case "H2SerializeHeaders On" is configured, errorneous requests led to
+   500 responses. Fixed by installing post_read hooks really early now.
+
+v0.8.1
+-------------------------------------------------------------------------------- 
+ * added some defensive code for configurations at user that produced duplicate
+   response headers
+ * added httpd/trunk fix to allocate task memory pools under mplx locking
+
+v0.8.0
+-------------------------------------------------------------------------------- 
+ * when serving static files, these are kept open longer (and buffer copied
+   less). Use config "H2SessionExtraFiles" to change the value. The more you
+   can give per connection, the better. But you may run out of open file 
+   handles, if not careful. Default value is 5, which seems to work on my
+   config with mpms worker, event and prefork. Basically, eaach httpd process
+   needs at least #connections + #workers + (#conn * #extrafiles) available.
+ * main connection buffering, buffer sizes and write sizes are configurable,
+   see README.md for the list of options. buffer sizes and write sizes influence
+   the TLS performance. Defaults seem reasonably, but ymmv.
+ * general performance improved due to better handling of stream close and
+   resource cleanup
+ * prefork mpm confirmed working. Unless configured otherwise, each session
+   will only have 1 worker thread. Raise this with "H2MaxWorkers"
+ * changed sandbox cipher config to mozilla recommendation (thanks Lucas)
+ * sandbox update to nghttp2 1.0.5
+
+v0.7.3
+--------------------------------------------------------------------------------
+ * sandbox update to nghttp2 1.0.4
+ * rework of stream scheduling and thread sync
+ * test suite runs with mpm_prefork on OS X and Ubuntu (feedback welcome)
+
+v0.7.2
+--------------------------------------------------------------------------------
+ * fixes crash with certain modules that (correctly) expected their 
+   pre_connection hooks to work. Solves #28
+ * fixes log statements and Makefile to compile sandbox on 32bit linux
+
+v0.7.1
+--------------------------------------------------------------------------------
+ * h2_mplx now uses reference counting to enable a controlled destruction on
+   session termination. If this fixes all the crashes reported, remains to
+   be seen.
+
+v0.7.0
+--------------------------------------------------------------------------------
+ * switching to nghttp2 v1.0.*, compilation + linkage with nghttp2 v0.7.* will
+   not work any more as there have been changes in nghttp2's API. The sandbox
+   builds against v1.0.2 and also pulls curl 7.43.0 which did the same version
+   switch.
+ * keeping support for h2-16/h2-14 ALPN identifiers until a 1.0 release
+ * varying h2 support (on|off) among virtual hosts on the same port is now
+   possible and should work correctly.
+ * improved mod_ssl alpn patch to correctly select the proper virtual host
+   even if the SSL library invokes SNI after ALPN callbacks.
+ * Disabled NPN support in sandbox built. The patch for httpd 2.4.x is still
+   there, but no longer applied.
+ * KNOWN ISSUE: when using mpm_event, the error 
+     "error scoreboard is full, not at MaxRequestWorkers" 
+   sometimes happens. Under investigation. mpm_worker ist stable and recommended
+   for now.
+
+
+v0.6.6
+--------------------------------------------------------------------------------
+ * adding sni_misdirect.patch for httpd/mod_ssl that changes status code when 
+   TLS connections are reused for other vhosts. 
+
+v0.6.5
+--------------------------------------------------------------------------------
+ * httpd scoreboard fixups: scoreboard handles are still updated on the main
+   connection from all stream request incoming from it, since it is not trivial
+   to get new handles for h2 workers. Updating of scoreboard status has been 
+   improved, no workers remain on "G"raceful shutdown in load tests any longer.
+ * some refacoring to isolate tls/alpn/upgrade code
+ * adding php-wrapper script to distribution, was missing
+
+v0.6.4
+--------------------------------------------------------------------------------
+ * accepting "h2" on Upgrade: headers and allowing also Upgrade to work on TLS
+   connections that talk HTTP/1.1.
+ * logging WARNING once when mod_h2 is used in a "prefork" mpm configuration.
+   There seem to be issues with mod_proxy/rewrite and dankging I/O.
+ * added test suites for combinations with mod_proxy and mod_rewrite
+ * added test for request with Host: header where h2 is not enabled
+ * sandbox now builds local openssl 1.0.2 if 1.0.1 or older are installed
+   on the system. Prior 1.0.1 was accepted, but NPN support will be disabled
+   soon.
+ * added "Known Problems" section in README
+ * direct mode should also work with TLS connections, untested currently.
+
+v0.6.3
+--------------------------------------------------------------------------------
+ * h2c direct mode is now enabled on http: virtual hosts. It can be disabled
+   by configuring "H2Direct off" for the base server. This works for clients
+   with prior knowledge that a http server supports h2c.
+
+v0.6.2
+--------------------------------------------------------------------------------
+ * added "H2Direct (on|off)" as config directive. On a non-TLS host, it enables
+   direct h2c communication without any Upgrade dance. Useful for testing, for
+   example with h2load.
+ * fixed concurrency issue observed on a mpm_event server when closing sessions
+
+v0.6.1
+--------------------------------------------------------------------------------
+ * relaxing task finished sync due to segfaults with mpm_event
+ * mod_reqtimeout enabled on stream processing again
+ * merged pr from ecovener, fix for ap_update_vhost_from_headers use
+ * tinkering with buffering on main connection
+
+v0.6.0
+--------------------------------------------------------------------------------
+ * fiddling around with task/worker assignments to use the global h2_workers
+   lock less, giving better parallelism
+ * ./configure --enable-werror enables all sorts of compiler diagnostics, if
+   the chosen compiler supports them
+ * merged pull request with compiler warning fixes by LPardue and @samhurst 
+   (Thanks!)
+ * new config option "H2SerializeHeaders (On|Off)" that determines if request
+   response headers should be serialized/parsed when converting from HTTP/2 to
+   httpd's internal HTTP/1 processing or request_recs are manipulated directly.
+   "Off" is default, "On" gives better compatibility.
+ * new config options "H2HackMpmEvent (On|Off) that enables a hack to make
+   internal connection work with the mpm_event module. Has no effect if other
+   mpm modules have been configured. Defaults to "On"."
+ * upgrading sandbox to nghttp2 0.7.15
+
+v0.5.6
+--------------------------------------------------------------------------------
+ * making SSL variables available in subprocess (e.g. CGI) environments if
+configured (fixes #19)
+
+v0.5.5
+--------------------------------------------------------------------------------
+ * improved transfer of large resources by 50% by more efficient writes
+
+v0.5.4
+ --------------------------------------------------------------------------------
+ * moving request handling and http/1 emulation into worker thread, offloading 
+   main
+ * some fixes in connection shutdown re race condition with still active workers
+ * removing reqtimeout filters on stream connections
+ * taking in latest alpn changes from httpd trunk, made separate npn patch for
+   those who need to run with openssl 1.0.1
+ * fixed handling of transient bucket in stream output data (led to corrupted
+   responses)
+ * reworked task join to eliminate race conditions during session shutdown
+ * info logging is less verbose
+
+v0.5.2
+--------------------------------------------------------------------------------
+ * rewrote the input handling
+    * forwarding headers in camel case to HTTP/1 request prossing
+    * merging duplicate headers into single line with proper separators
+    * eliminated h2_bucket by using apr_bucket_brigades everywhere
+    * added test cases and fixed chunked input processing
+ * sandbox now uses curl 7.42.0
+ * enhanced alpn patch slightly, compatible to old one, no need to repatch mod_ssl on existing installations
+ * adding some tests with fcgi, for sandbox testing please install php5-cgi
+
+v0.5.1
+--------------------------------------------------------------------------------
+ * ensuring HOST header is properly set for internal request handling
+ * updated sandbox to latest nghttp2 release
+
+v0.5.0
+--------------------------------------------------------------------------------
+ * improved resource handling and performance
+ * fixes lookup of correct server config when several virtual hosts are 
+   available
+
+v0.4.5
+--------------------------------------------------------------------------------
+ * fixed base64 decoding to use correct dialect when upgrading to h2c
+
+v0.4.4
+--------------------------------------------------------------------------------
+ * adds missing file in distribution tar, fixes #11
+ * sandbox now uses nghttp2 0.7.11
+
+v0.4.3
+--------------------------------------------------------------------------------
+ * heavy work on internal data transfers, use of apache bucket brigades for
+   improved performance and parallelism
+ * mod_h2 now performs proper flow-control on input. Uploads can no longer
+   flood memory of the server.
+ * changed mod_ssl patch to reflect current trunk changes in regard to NPN/ALPN
+   support.
+ * patched the trunk ALPN patch to make it do the right thing if no 
+   ALPNPreference is configured
+ * added DESTDIR support in Makefile as supplied by Hanno Böck.
+
+v0.4.2
+--------------------------------------------------------------------------------
+ * adding more low-level logging to NPN/ALPN negotiation
+ * added '-Werror' to module compiler flags (thanks @devurandom)
+ * debugged and tcpdumped around h2c startup handling with curl on certain
+   platforms. If you experience connection hangers, report pls with 'trace2'
+   level error log.
+
+v0.4.1
+--------------------------------------------------------------------------------
+ * fixing infinite loop when aborting session with tasks hanging in read
+
+v0.4.0
+--------------------------------------------------------------------------------
+ * h2 + h2-16 will be negiotiated/upgraded. Priority handling is implemented
+   in nghttp2, however assigning requests to workers has currently not the
+   necessary information.
+ * Alt-Svc support based on https://http2.github.io/http2-spec/alt-svc.html#indicator
+   Configuration directives "H2AltSvc" and "H2AltSvcMaxAge" added. Configurable
+   per virtual host.
+ * reduced lock contention and eliminated broadcast signalling on internal 
+   condition variables, improved multi-thread performance
+
+v0.3.1
+--------------------------------------------------------------------------------
+ * defining _GNU_SOURCE to pull in proper features and make APR header files
+   happy, fixes #7 
+
+v0.3.0
+--------------------------------------------------------------------------------
+ * new directory structure, all sandbox related parts have been moved to 
+   own sandbox dir
+ * non-sandbox configuration no longer triggers building of sandbox stuff
+ * cleanup up distribution builds to have smaller and working tar balls
+
+v0.2.2
+--------------------------------------------------------------------------------
+ * optimizations on response reads
+ * being more apacheeeish, using APR_RINGs for queue handling
+ * using openssl latest.tar.gz to retrieve latest openssl for sandbox
+ * fixed crash in large request header handling
+ * better flushing of stream io resulting in performance improvements
+ * added sandbox tests for chunked responses of various sizes
+ * integrated fix (https://github.com/icing/mod_h2/pull/5) from 
+   Jonathan (invader444) to fix chunked encoding when converting http/1
+   responses to http2 unchunked data.
+
+v0.2.1
+--------------------------------------------------------------------------------
+ * changed apr_pool usage to have more recycling, 50% performance increase in 
+   loadtest
+ * added hack to enable mod_h2 to run in mpm_event (experimental)
+ * changed internal stream/data lookup from O(n/2) to O(log(n)) time
+ * fixed index in http2 to http1 header conversion leading to segfaults
+ * update openssl version downloaded for sandbox
+ * using sha256 for self-signed sandbox certificates
+ * sandbox certificate no longer announces itself as roo
+   (last 3 thanks to michael.koeller at greenbytes.de)
+
+v0.2.0
+--------------------------------------------------------------------------------
+ * merged pull request from Tatsuhiro Tsujikawa, removing code for CONTINUATION
+   frames that are never seen by mod_h2
+ * request/response headers are filtered when converting between HTTP/1.1 and
+   HTTP/2 where they can only do harm (Expect/Connection/etc.)
+ * added test cases for uploads
+ * fixed handling of uploads ;-)
+ * enabled h2c upgrade for "OPTIONS *" requests
+ * changed h2_stream_set implementation to use sorted apr array
+ * switched to nghttp2 v0.7.7 in sandbox
+
+v0.1.1
+--------------------------------------------------------------------------------
+ * added cgi test cases (needs python installed)
+ * fixed typo in configure.ac that did not set the CPP flags correctly (#3)
+ * fixed handling of chunked encoding in responses
+ * merged header macro pull request from MATSUMOTO, Ryosuke
+
+v0.1.0
+--------------------------------------------------------------------------------
+ * first alpha release, see README on how to use it and what is all missing
+ * h2 supported with openssl > 1.0.1 and patched mod_ssl (patch included and used in sandbox)
+ * h2c supported
+ * only usable in mpm_worker right now
+ * configure --enable-sandbox for a local install of everything needed
+ * tested with httpd 2.4.12 and nghttp2 0.7.5 on Ubuntu 14.04 and OS X 10.10

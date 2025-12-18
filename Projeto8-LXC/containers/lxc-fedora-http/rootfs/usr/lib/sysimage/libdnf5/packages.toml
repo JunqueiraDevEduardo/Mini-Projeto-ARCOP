@@ -2,6 +2,10 @@ version = "1.0"
 
 [packages]
 "alternatives.x86_64" = {reason = "Dependency"}
+"apr-util-lmdb.x86_64" = {reason = "Dependency"}
+"apr-util-openssl.x86_64" = {reason = "Weak Dependency"}
+"apr-util.x86_64" = {reason = "Dependency"}
+"apr.x86_64" = {reason = "Dependency"}
 "audit-libs.x86_64" = {reason = "Dependency"}
 "basesystem.noarch" = {reason = "User"}
 "bash.x86_64" = {reason = "User"}
@@ -19,6 +23,7 @@ version = "1.0"
 "elfutils-libelf.x86_64" = {reason = "Dependency"}
 "expat.x86_64" = {reason = "Dependency"}
 "fedora-gpg-keys.noarch" = {reason = "Dependency"}
+"fedora-logos-httpd.noarch" = {reason = "Dependency"}
 "fedora-release-common.noarch" = {reason = "Dependency"}
 "fedora-release-identity-basic.noarch" = {reason = "Dependency"}
 "fedora-release.noarch" = {reason = "User"}
@@ -26,6 +31,7 @@ version = "1.0"
 "filesystem.x86_64" = {reason = "Dependency"}
 "findutils.x86_64" = {reason = "Dependency"}
 "fmt.x86_64" = {reason = "Dependency"}
+"fonts-filesystem.noarch" = {reason = "Dependency"}
 "gdbm-libs.x86_64" = {reason = "Dependency"}
 "glib2.x86_64" = {reason = "Dependency"}
 "glibc-common.x86_64" = {reason = "Dependency"}
@@ -35,9 +41,14 @@ version = "1.0"
 "gnulib-l10n.noarch" = {reason = "Dependency"}
 "gnutls.x86_64" = {reason = "Dependency"}
 "grep.x86_64" = {reason = "Dependency"}
+"httpd-core.x86_64" = {reason = "Dependency"}
+"httpd-filesystem.noarch" = {reason = "Dependency"}
+"httpd-tools.x86_64" = {reason = "Dependency"}
+"httpd.x86_64" = {reason = "User"}
 "iproute.x86_64" = {reason = "User"}
 "iputils.x86_64" = {reason = "User"}
 "json-c.x86_64" = {reason = "Dependency"}
+"julietaula-montserrat-fonts.noarch" = {reason = "Weak Dependency"}
 "keyutils-libs.x86_64" = {reason = "Dependency"}
 "krb5-libs.x86_64" = {reason = "Dependency"}
 "libacl.x86_64" = {reason = "Dependency"}
@@ -82,8 +93,12 @@ version = "1.0"
 "libxml2.x86_64" = {reason = "Dependency"}
 "libyaml.x86_64" = {reason = "Dependency"}
 "libzstd.x86_64" = {reason = "Dependency"}
+"lmdb-libs.x86_64" = {reason = "Dependency"}
 "lua-libs.x86_64" = {reason = "Dependency"}
 "lz4-libs.x86_64" = {reason = "Dependency"}
+"mailcap.noarch" = {reason = "Dependency"}
+"mod_http2.x86_64" = {reason = "Weak Dependency"}
+"mod_lua.x86_64" = {reason = "Weak Dependency"}
 "ncurses-base.noarch" = {reason = "Dependency"}
 "ncurses-libs.x86_64" = {reason = "Dependency"}
 "nettle.x86_64" = {reason = "Dependency"}
