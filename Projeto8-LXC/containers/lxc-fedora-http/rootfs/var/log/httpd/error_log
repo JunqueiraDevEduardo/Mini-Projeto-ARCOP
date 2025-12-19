@@ -20,3 +20,8 @@ AH00558: httpd: Could not reliably determine the server's fully qualified domain
 [Thu Dec 18 16:44:21.987322 2025] [mpm_event:notice] [pid 37:tid 37] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
 [Thu Dec 18 16:44:21.987347 2025] [core:notice] [pid 37:tid 37] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
 [Thu Dec 18 17:45:40.007741 2025] [mpm_event:notice] [pid 162:tid 162] AH00492: caught SIGWINCH, shutting down gracefully
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.0.3.100. Set the 'ServerName' directive globally to suppress this message
+[Fri Dec 19 15:39:59.192961 2025] [lbmethod_heartbeat:notice] [pid 37:tid 37] AH02282: No slotmem from mod_heartmonitor
+[Fri Dec 19 15:39:59.196616 2025] [mpm_event:notice] [pid 37:tid 37] AH00489: Apache/2.4.65 (Fedora Linux) configured -- resuming normal operations
+[Fri Dec 19 15:39:59.196717 2025] [core:notice] [pid 37:tid 37] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Fri Dec 19 18:00:44.888004 2025] [mpm_event:notice] [pid 37:tid 37] AH00492: caught SIGWINCH, shutting down gracefully

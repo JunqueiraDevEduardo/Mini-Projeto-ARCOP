@@ -93,3 +93,14 @@ free -h
 ls
 df
 exit
+ip addr
+free -h
+ls
+df
+ping -c 3 8.8.8.8
+ping -c 3 http://192.168.157.212
+ping -c 3 192.168.157.212
+curl http://192.168.157.212:8080/
+ls
+exit
+ls
