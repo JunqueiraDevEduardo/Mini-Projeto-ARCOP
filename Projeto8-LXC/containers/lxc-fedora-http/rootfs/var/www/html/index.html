@@ -1,1 +1,192 @@
-<h1>Projeto 8 - LXC Container HTTP Server</h1><p>Container criado sem template</p>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-projeto-ARCOP - Comparação Containers LXC/LXD Vs Docker Vs Podman</title>
+    <style>
+        :root { --primary:#3C6EB4; --dark:#292929; --light:#f5f5f5; --card-bg:#ffffff; }
+        *{box-sizing:border-box;}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:var(--light);margin:0;padding:20px;color:var(--dark);line-height:1.6;}
+        .container{max-width:1000px;margin:0 auto;width:100%;}
+        header{background-color:var(--primary);color:white;padding:25px 20px;border-radius:8px;margin-bottom:30px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.1);}
+        .top-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin-bottom:30px;}
+        .bottom-section{width:100%;}
+        .card{background:var(--card-bg);padding:25px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.05);border-top:5px solid var(--primary);height:100%;}
+        h1{margin:0 0 10px 0;font-size:clamp(1.5rem,4vw,1.8rem);}
+        h2{margin-top:0;color:var(--primary);font-size:clamp(1.1rem,3vw,1.3rem);border-bottom:2px solid #f0f0f0;padding-bottom:10px;margin-bottom:15px;}
+        ul{list-style:none;padding:0;margin:0;}
+        li{padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+        li:last-child{border-bottom:none;}
+        .status-ok{color:#27ae60;font-weight:bold;}
+        .badge-dinamico{color:white;padding:5px 12px;border-radius:4px;font-weight:bold;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px;display:inline-block;}
+        .info-box,.requisitos-box,.github-box{padding:18px;margin-bottom:25px;border-radius:4px;border-left:4px solid;}
+        .info-box{background-color:#e8f4f8;border-color:#3C6EB4;}
+        .info-box p{margin:5px 0;font-size:clamp(0.85rem,2vw,0.9rem);color:#1a5490;}
+        .requisitos-box{background-color:#d4edda;border-color:#28a745;}
+        .requisitos-box h3{margin-top:0;color:#155724;font-size:clamp(1rem,2.5vw,1.1rem);}
+        .requisitos-box ul li{padding:8px 0;border-bottom:none;display:flex;align-items:flex-start;}
+        .requisitos-box li:before{content:"✓";color:#28a745;font-weight:bold;font-size:1.2rem;margin-right:10px;flex-shrink:0;}
+        .github-box{background-color:#fff3cd;border-color:#ffc107;}
+        .github-box p{margin:5px 0;color:#856404;font-size:clamp(0.85rem,2vw,0.9rem);}
+        .github-box a{color:#0066cc;text-decoration:none;font-weight:bold;word-break:break-all;}
+        .github-box a:hover{text-decoration:underline;}
+        .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        table{width:100%;border-collapse:collapse;margin-top:5px;font-size:clamp(0.8rem,1.8vw,0.95rem);min-width:600px;}
+        th,td{border:1px solid #eee;padding:12px 8px;text-align:center;}
+        th{background-color:var(--primary);color:white;font-weight:600;text-transform:uppercase;font-size:clamp(0.75rem,1.5vw,0.85rem);}
+        td:first-child{text-align:left;font-weight:bold;color:#555;}
+        tr:nth-child(even){background-color:#f9f9f9;}
+        .bom{color:#27ae60;font-weight:bold;}
+        .medio{color:#e67e22;}
+        .mau{color:#c0392b;}
+        .destaque{font-weight:bold;color:var(--primary);background-color:#eef6ff;}
+        code{background-color:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:'Courier New',monospace;font-size:0.9em;}
+        footer{margin-top:50px;text-align:center;font-size:clamp(0.75rem,1.5vw,0.8rem);color:#777;border-top:1px solid #ddd;padding-top:20px;line-height:1.8;}
+        @media(max-width:768px){body{padding:10px;}.card{padding:20px 15px;}li{flex-direction:column;align-items:flex-start;}.badge-dinamico{margin-top:5px;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Mini-Projeto-ARCOP 2025/26</h1>
+        <p>Projeto 8: LXC/LXD Criação de containers LXC para Fedora sem recorrer a templates pré-definidos. O container final deverá demonstrar a execução do servidor HTTP. Confrontar com solução baseada em Podman/Docker.</p>
+    </header>
+
+    <div class="top-section">
+        <div class="card">
+            <h2> Ambiente Atual</h2>
+            <ul>
+                <li><span>Sistema Operativo</span> <strong>Fedora Linux 42</strong></li>
+                <li>
+                    <span>Motor</span>
+                    <span class="badge-dinamico" style="background-color: #e74c3c;">
+                        LXC (Linux Containers) - WSL
+                    </span>
+                </li>
+                <li><span>Servidor HTTP</span> <strong>Apache HTTPD 2.4</strong></li>
+                <li><span>Estado</span> <span class="status-ok"> Operacional</span></li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2> Identificação do Grupo</h2>
+            <ul>
+                <li><span>Estudante 1</span> <strong>Eduardo Junqueira</strong></li>
+                <li><span>Estudante 2</span> <strong>Guilherme Soares</strong></li>
+                <li><span>Curso</span> <strong>MEEC - AS - ISEP</strong></li>
+                <li><span>Ano Letivo</span> <strong>2025/2026</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="requisitos-box">
+        <h3> Requisitos do Projeto 8 (Cumpridos)</h3>
+        <ul>
+            <li><strong>Container LXC criado para Fedora 42 sem templates pré-definidos</strong> — Construção manual do rootfs utilizando ferramentas dnf</li>
+            <li><strong>Demonstração de servidor HTTP em execução</strong> — Apache HTTPD 2.4 operacional e acessível via rede (IP: 10.0.3.100)</li>
+            <li><strong>Comparação com soluções Docker e Podman</strong> — Análise quantitativa de métricas de desempenho apresentada na tabela abaixo</li>
+        </ul>
+    </div>
+
+    <div class="info-box">
+        <p><strong> Divisão de Tarefas do Projeto:</strong></p>
+        <p> <strong>Eduardo Junqueira:</strong> Implementação de LXC/LXD em ambiente WSL-Visual Studio Code  (Fedora 42) sem recurso a templates</p>
+        <p> <strong>Guilherme Soares:</strong> Implementação de Docker e Podman em ambiente Windows nativo para comparação</p>
+    </div>
+
+    <div class="github-box">
+        <p><strong> Repositório do Projeto:</strong></p>
+        <p>Toda a documentação, scripts e configurações encontram-se disponíveis em:</p>
+        <p><a href="https://github.com/JunqueiraDevEduardo/Mini-Projeto-ARCOP.git" target="_blank">https://github.com/JunqueiraDevEduardo/Mini-Projeto-ARCOP.git</a></p>
+    </div>
+
+    <div class="bottom-section">
+        <div class="card">
+            <h2> Análise Comparativa de Desempenho</h2>
+            <p style="margin-bottom:15px;color:#666;">Comparação quantitativa entre as três soluções de contentorização implementadas:</p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>LXC/LXD (WSL)</th>
+                            <th>Docker (Windows)</th>
+                            <th>Podman (Windows)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Utilização de CPU (Idle)</td>
+                            <td class="medio">~0.6%</td>
+                            <td class="destaque bom">0.19%</td>
+                            <td class="bom">0.24%</td>
+                        </tr>
+                        <tr>
+                            <td>Memória RAM Utilizada</td>
+                            <td class="mau">1.8 GiB<sup>1</sup></td>
+                            <td class="destaque bom">17.28 MiB</td>
+                            <td class="bom">18.13 MiB</td>
+                        </tr>
+                        <tr>
+                            <td>Espaço em Disco (rootfs)</td>
+                            <td class="medio">313 MB</td>
+                            <td class="destaque bom">245 MB</td>
+                            <td class="bom">245 MB</td>
+                        </tr>
+                        <tr>
+                            <td>Pacotes Instalados</td>
+                            <td class="medio">132</td>
+                            <td class="bom">~80-100</td>
+                            <td class="bom">~80-100</td>
+                        </tr>
+                        <tr>
+                            <td>Modelo de Privilégios</td>
+                            <td>Super Root</td>
+                            <td class="medio">Root (Daemon)</td>
+                            <td class="destaque bom">User (Rootless)</td>
+                        </tr>
+                        <tr>
+                            <td>Endereço IP Atribuído</td>
+                            <td class="bom">10.0.3.100</td>
+                            <td>172.17.0.x</td>
+                            <td>10.89.0.x</td>
+                        </tr>
+                        <tr>
+                            <td>Ambiente de Execução</td>
+                            <td class="bom">WSL2 + Fedora 42</td>
+                            <td>Windows 11 (nativo)</td>
+                            <td>Windows 11 (nativo)</td>
+                        </tr>
+                        <tr>
+                            <td>Método de Criação</td>
+                            <td class="destaque bom">Manual (sem template)</td>
+                            <td>Containerfile</td>
+                            <td>Containerfile</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="font-size:0.85rem;color:#666;margin-top:20px;line-height:1.6;">
+                <p><strong>Notas Técnicas:</strong></p>
+                <p><sup>1</sup> Memória partilhada com o sistema anfitrião WSL (total disponível: 7.6 GiB)</p>
+                <p> Container LXC construído manualmente através de <code>dnf --installroot</code> sem recurso a templates pré-definidos</p>
+                <p> Servidor HTTP Apache HTTPD 2.4 configurado e em execução em todas as soluções testadas</p>
+                <p> Métricas Docker/Podman recolhidas em sistema Windows 11 nativo</p>
+                <p> Métricas LXC recolhidas em WSL2 com distribuição Fedora 42</p>
+                <p> Data de validação: 19 de dezembro de 2025</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>Instituto Superior de Engenharia do Porto (ISEP)</strong></p>
+        <p>Mestrado em Engenharia Eletrotécnica e de Computadores</p>
+        <p>Arquitetura de Computadores | Projeto 8: LXC/LXD Criação de containers LXC para Fedora sem recorrer a templates pré-definidos. O container final deverá demonstrar a execução do servidor HTTP. Confrontar com solução baseada em Podman/Docker.</p>
+        <p style="margin-top:15px;">Repositório GitHub: <a href="https://github.com/JunqueiraDevEduardo/Mini-Projeto-ARCOP.git" target="_blank" style="color:#3C6EB4;">Mini-Projeto-ARCOP</a></p>
+    </footer>
+</div>
+</body>
+</html>

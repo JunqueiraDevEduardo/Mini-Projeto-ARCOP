@@ -1,0 +1,58 @@
+=== MÉTRICAS COMPLETAS - LXC CONTAINER ===
+Data: 19 Dezembro 2025
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. INFORMAÇÕES DO CONTAINER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name:           lxc-fedora-http
+State:          RUNNING
+PID:            103892
+IP:             10.0.3.100
+IP (IPv6):      fc42:5009:ba4b:5ab0:216:3eff:feaa:bbcc
+Interface:      veth6QnlQU
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. USO DE MEMÓRIA RAM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total:          7.6 GiB (compartilhado com WSL host)
+Usado:          1.8 GiB
+Livre:          4.7 GiB
+Buff/Cache:     1.2 GiB
+Disponível:     5.7 GiB
+
+Swap:
+Total:          2.0 GiB
+Usado:          0 B
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. ESPAÇO EM DISCO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Rootfs Total:   313 MB
+
+Filesystem:     /dev/sdd
+Usado:          22 GB
+Disponível:     932 GB
+Uso:            3%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. PACOTES INSTALADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total (RPM):    132 pacotes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. TRÁFEGO DE REDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TX (Enviado):   9.94 KiB
+RX (Recebido):  40.09 KiB
+Total:          50.04 KiB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. RESUMO PARA COMPARAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tecnologia:     LXC (Linux Containers)
+OS:             Fedora 42
+Servidor HTTP:  Apache httpd
+Rootfs:         313 MB
+Pacotes:        132
+Memória RAM:    1.8 GiB usado (de 7.6 GiB total WSL)
+Privilégios:    Root (requer sudo)

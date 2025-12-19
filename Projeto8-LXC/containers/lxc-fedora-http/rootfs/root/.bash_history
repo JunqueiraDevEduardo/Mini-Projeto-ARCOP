@@ -83,3 +83,13 @@ exit
 ping -c 3 8.8.8.8
 exit
 exit
+rpm -qa | wc -l
+free -h
+echo -e "\n=== MEMÓRIA RAM DO CONTAINER ===" >> docs/metricas/lxc-stats.txt
+sudo lxc-attach -n lxc-fedora-http -P . -- free -m | grep "Mem:" >> docs/metricas/lxc-stats.txt
+free -h
+rpm -qa | wc -l
+free -h
+ls
+df
+exit
