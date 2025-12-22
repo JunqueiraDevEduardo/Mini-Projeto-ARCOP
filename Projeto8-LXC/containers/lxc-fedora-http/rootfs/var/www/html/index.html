@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-projeto-ARCOP - Comparação Containers LXC/LXD Vs Docker Vs Podman</title>
+        <title>Mini-projeto-ARCOP - Comparação Containers LXC/LXD Vs Docker Vs Podman</title>
     <style>
         :root { --primary:#3C6EB4; --dark:#292929; --light:#f5f5f5; --card-bg:#ffffff; }
         *{box-sizing:border-box;}
@@ -60,12 +60,12 @@
                 <li><span>Sistema Operativo</span> <strong>Fedora Linux 42</strong></li>
                 <li>
                     <span>Motor</span>
-                    <span class="badge-dinamico" style="background-color: #e74c3c;">
-                        LXC (Linux Containers) - WSL
+                    <span class="badge-dinamico" style="background-color: #CCCCCC;">
+                        {{NOME_MOTOR}}
                     </span>
                 </li>
                 <li><span>Servidor HTTP</span> <strong>Apache HTTPD 2.4</strong></li>
-                <li><span>Estado</span> <span class="status-ok"> Operacional</span></li>
+                <li><span>Estado</span> <span class="status-ok">● Operacional</span></li>
             </ul>
         </div>
 
@@ -81,7 +81,7 @@
     </div>
 
     <div class="requisitos-box">
-        <h3> Requisitos do Projeto 8 (Cumpridos)</h3>
+       <h3> Requisitos do Projeto 8 (Cumpridos)</h3>
         <ul>
             <li><strong>Container LXC criado para Fedora 42 sem templates pré-definidos</strong> — Construção manual do rootfs utilizando ferramentas dnf</li>
             <li><strong>Demonstração de servidor HTTP em execução</strong> — Apache HTTPD 2.4 operacional e acessível via rede (IP: 10.0.3.100)</li>
@@ -93,6 +93,7 @@
         <p><strong> Divisão de Tarefas do Projeto:</strong></p>
         <p> <strong>Eduardo Junqueira:</strong> Implementação de LXC/LXD em ambiente WSL-Visual Studio Code  (Fedora 42) sem recurso a templates</p>
         <p> <strong>Guilherme Soares:</strong> Implementação de Docker e Podman em ambiente Windows nativo para comparação</p>
+    
     </div>
 
     <div class="github-box">
@@ -111,7 +112,7 @@
                     <thead>
                         <tr>
                             <th>Métrica</th>
-                            <th>LXC/LXD (WSL)</th>
+                            <th>LXC (WSL)</th>
                             <th>Docker (Windows)</th>
                             <th>Podman (Windows)</th>
                         </tr>
@@ -119,49 +120,49 @@
                     <tbody>
                         <tr>
                             <td>Utilização de CPU (Idle)</td>
-                            <td class="medio">~0.6%</td>
-                            <td class="destaque bom">0.19%</td>
-                            <td class="bom">0.24%</td>
+                            <td class="mau">~0.6%</td>
+                            <td class="bom">0.25%</td>
+                            <td class="medio">0.28%</td>
                         </tr>
                         <tr>
                             <td>Memória RAM Utilizada</td>
                             <td class="mau">1.8 GiB<sup>1</sup></td>
-                            <td class="destaque bom">17.28 MiB</td>
-                            <td class="bom">18.13 MiB</td>
+                            <td class="bom">17.55 MiB</td>
+                            <td class="medio">18.16 MiB</td>
                         </tr>
                         <tr>
                             <td>Espaço em Disco (rootfs)</td>
-                            <td class="medio">313 MB</td>
-                            <td class="destaque bom">245 MB</td>
+                            <td class="mau">313 MB</td>
                             <td class="bom">245 MB</td>
+                            <td class="medio">252 MB</td>
                         </tr>
                         <tr>
                             <td>Pacotes Instalados</td>
-                            <td class="medio">132</td>
-                            <td class="bom">~80-100</td>
-                            <td class="bom">~80-100</td>
+                            <td class="bom">132</td>
+                            <td class="medio">175</td>
+                            <td class="medio">175</td>
                         </tr>
                         <tr>
                             <td>Modelo de Privilégios</td>
-                            <td>Super Root</td>
+                            <td class="mau">Super Root</td>
                             <td class="medio">Root (Daemon)</td>
-                            <td class="destaque bom">User (Rootless)</td>
+                            <td class="bom">User (Rootless)</td>
                         </tr>
                         <tr>
                             <td>Endereço IP Atribuído</td>
-                            <td class="bom">10.0.3.100</td>
+                            <td>10.0.3.100:8080</td>
                             <td>localhost:8081</td>
                             <td>localhost:8080</td>
                         </tr>
                         <tr>
                             <td>Ambiente de Execução</td>
-                            <td class="bom">WSL2 + Fedora 42</td>
+                            <td>WSL2 + Fedora 42</td>
                             <td>Windows 11 (nativo)</td>
                             <td>Windows 11 (nativo)</td>
                         </tr>
                         <tr>
                             <td>Método de Criação</td>
-                            <td class="destaque bom">Manual (sem template)</td>
+                            <td class="bom">Manual (sem template)</td>
                             <td>Containerfile</td>
                             <td>Containerfile</td>
                         </tr>
